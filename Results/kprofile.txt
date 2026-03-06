@@ -1,0 +1,68 @@
+Timer unit: 1e-06 s
+
+Total time: 152.905 s
+File: naive_main.py
+Function: main at line 40
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    40                                           @profile  # type: ignore
+    41                                           def main(target_min_len, search_cutoff, element)->None:
+    42         1         31.9     31.9      0.0      logger = custom_logger()
+    43         1       1489.1   1489.1      0.0      load_dotenv()
+    44         1          9.5      9.5      0.0      api_key = os.getenv('MAT_PROJ_KEY')
+    45                                           
+    46         1          0.4      0.4      0.0      if not api_key:
+    47                                                   raise ValueError("Material project key is missing from .env file")
+    48                                           
+    49         2    1864437.8 932218.9      1.2      with MPRester(api_key) as mpr:
+    50         1    1214750.6 1.21e+06      0.8          docs = mpr.materials.summary.search(material_ids=[element])
+    51         1          2.1      2.1      0.0          struct = docs[0].structure
+    52                                           
+    53         1         17.0     17.0      0.0      bva = BVAnalyzer()
+    54         1          0.3      0.3      0.0      try:
+    55         1      27930.7  27930.7      0.0          valences = bva.get_valences(struct)
+    56                                                   with open("valences.info", "w") as file:
+    57                                                       for v in valences:
+    58                                                           if isinstance(v, int):
+    59                                                               file.write(f"{v}\n")
+    60                                                           elif isinstance(v, list):
+    61                                                               line = " ".join(map(str, v))
+    62                                                               file.write(f"{line}\n")
+    63                                                       file.close()
+    64         1          0.4      0.4      0.0      except:
+    65         1        413.5    413.5      0.0          logger.error("Symmetry too broken for standard BVA, ignoring")
+    66                                                   
+    67         1         48.9     48.9      0.0      abc = struct.lattice.abc # In Armstrongs btw | Me when my arm is strong 😎
+    68                                           
+    69         1          4.0      4.0      0.0      factors = [math.ceil(target_min_len / length) for length in abc]
+    70                                           
+    71         1        139.9    139.9      0.0      logger.info(f"Factors: {factors[0]:.2f}, {factors[1]:.2f}, {factors[2]:.2f}")
+    72         1        111.0    111.0      0.0      logger.info(f"Total atoms to analyze: {len(struct)}")
+    73                                           
+    74         1      38769.1  38769.1      0.0      struct.make_supercell(factors)
+    75         1         14.2     14.2      0.0      nn = CrystalNN(weighted_cn=True, search_cutoff=search_cutoff)
+    76                                               
+    77         1          0.6      0.6      0.0      types_to_check = ["tet", "oct", "bcc", "sq_pyr"]
+    78         1       1256.6   1256.6      0.0      lsop = LocalStructOrderParams(types_to_check)
+    79                                           
+    80         1          0.4      0.4      0.0      all_info = []
+    81         1          0.3      0.3      0.0      all_geometric_data = []
+    82       687        423.6      0.6      0.0      for i in range(len(struct)):
+    83                                                   
+    84       686   18158423.9  26470.0     11.9          info = nn.get_nn_info(struct, i)
+    85       686        443.7      0.6      0.0          all_info.append(info)
+    86                                                   
+    87       686  131590866.7 191823.4     86.1          order_params = lsop.get_order_parameters(struct, i)
+    88       686        564.8      0.8      0.0          all_geometric_data.append(order_params)
+    89                                                   
+    90       686        662.9      1.0      0.0          if i % 100 == 0:
+    91         7       1452.2    207.5      0.0              logger.info(f"Processed {i}/{len(struct)} atoms")
+    92                                                       
+    93                                               
+    94         2        201.6    100.8      0.0      with open("local_order.info", "w") as file:
+    95         1          6.3      6.3      0.0          file.write(f"Order Parameter Types: {types_to_check}\n")
+    96       687        269.8      0.4      0.0          for i, data in enumerate(all_geometric_data):
+    97       686       1929.2      2.8      0.0              file.write(f"Site {i}: {data}\n")
+
+152.90 seconds - naive_main.py:40 - main
