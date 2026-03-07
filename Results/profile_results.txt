@@ -1,1 +1,0 @@
-[!] ERROR: Symmetry too broken for standard BVA, ignoring
