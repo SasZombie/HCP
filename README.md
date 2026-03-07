@@ -53,3 +53,11 @@ Sorin:
 * The parallel approach kills all profilers used. 
 * Treid using *viztracer*. Eats more than 32 GB ram and kills the machine. Swiched to a max depth of 5. 
 * The log is a json of around 1GB. Vs-code cant open it. Swiching to a max depth of 4. Noted a huge reduction in time. From minutes to secconds.
+
+Gabriela:
+* Looking over the Materials site and capabilities.
+* Getting an API Key.
+* Directing env vars.
+* Python libs dont work, swiching to minimal dependencies ones.
+* Organised repo and requirements.
+* After the hard scenario fails with paraleism, started looking into C++ openmp speed up options.
