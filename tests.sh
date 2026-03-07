@@ -1,5 +1,9 @@
 #/bin/bash
 
+if [ ! -d "Results" ]; then
+  mkdir "Results"
+fi
+
 rm Results/*
 
 set -xe
