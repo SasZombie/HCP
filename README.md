@@ -45,11 +45,11 @@ paralel_main takes more than 15 minuts for hard scenario
 
 ## Week 1
 
-Sorin:
-    * Started by researching the a simple, computationally intensive problem. LSOP is picked and started working on the [naive approach](naive_main.py "Implementation").
-    * Materials API is pretty well documented which resulted in a very fast work-flow.
-    * Started Profiling and analysis of the results.
-    * Started the [Parallelism implementation](paralel_main.py "Implementation").
-    * The parallel approach kills all profilers used. 
-    * Treid using *viztracer*. Eats more than 32 GB ram and kills the machine. Swiched to a max depth of 5. 
-    * The log is a json of around 1GB. Vs-code cant open it. Swiching to a max depth of 4. Noted a huge reduction in time. From minutes to secconds.
+Sorin:  
+* Started by researching the a simple, computationally intensive problem. LSOP is picked and started working on the [naive approach](naive_main.py "Implementation").  
+* Materials API is pretty well documented which resulted in a very fast work-flow.
+* Started Profiling and analysis of the results.
+* Started the [Parallelism implementation](paralel_main.py "Implementation").
+* The parallel approach kills all profilers used. 
+* Treid using *viztracer*. Eats more than 32 GB ram and kills the machine. Swiched to a max depth of 5. 
+* The log is a json of around 1GB. Vs-code cant open it. Swiching to a max depth of 4. Noted a huge reduction in time. From minutes to secconds.
