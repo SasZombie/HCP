@@ -9,7 +9,7 @@ target_compile_options(project_warnings INTERFACE
     $<$<CONFIG:Debug>:-Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith
     -Wmissing-declarations -Winline -Wundef -Wcast-qual -Wshadow
     -Wwrite-strings -Wno-unused-parameter -Wfloat-equal>
-    
+
     $<$<CONFIG:Release>:-O3>
 )
 
@@ -33,9 +33,18 @@ FetchContent_Declare(pybind11
     GIT_TAG v2.13.1)
 FetchContent_MakeAvailable(pybind11)
 
+FetchContent_Declare(
+    eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG 3.4.0
+)
+FetchContent_MakeAvailable(eigen)
+
 add_library(HarmonicModule src/HarmonicModule.cpp)
 target_include_directories(HarmonicModule PUBLIC include)
-target_link_libraries(HarmonicModule PRIVATE project_warnings project_sanitizers)
+target_link_libraries(HarmonicModule
+    PUBLIC Eigen3::Eigen
+    PRIVATE project_warnings project_sanitizers)
 
 set_target_properties(HarmonicModule PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

@@ -4,3 +4,5 @@ venv
 *.log
 *.info
 Results/*
+CppBindings/build-debug/*
+CppBindings/build-release/*
