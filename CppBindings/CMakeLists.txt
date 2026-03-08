@@ -40,13 +40,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(eigen)
 
-add_library(HarmonicModule src/HarmonicModule.cpp)
+add_library(HarmonicModule src/HarmonicModule.cpp src/Hungarian.cpp)
 target_include_directories(HarmonicModule PUBLIC include)
 target_link_libraries(HarmonicModule
     PUBLIC Eigen3::Eigen
     PRIVATE project_warnings project_sanitizers)
 
+
 set_target_properties(HarmonicModule PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 
 pybind11_add_module(PythonHarmonicModule src/bindings.cpp)
 target_link_libraries(PythonHarmonicModule PRIVATE HarmonicModule)

@@ -29,5 +29,7 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
         const double* p_weights = weights.data();
         const double* p_coords  = coords.data();
 
-        analyzeAtoms(startV, p_weights, p_coords, n_atoms); });
+        std::array<double, 4> results = analyzeAtoms(startV, p_weights, p_coords, n_atoms); 
+        return results;
+    });
 }

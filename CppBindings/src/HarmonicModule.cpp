@@ -1,4 +1,5 @@
 #include "HarmonicModule.hpp"
+#include "Hungarian.h"
 
 #include <algorithm>
 #include <numeric>
@@ -71,12 +72,61 @@ static constexpr AtomTemplate LOOKUP[] = {
 
 };
 
+// Kabsch and Hungarian Algorithms
 double alignScore(const Eigen::Matrix<double, 24, 3, Eigen::RowMajor> &elems, const AtomTemplate &temp) noexcept
 {
-    return 1;
+    const size_t n = temp.size / 3;
+    Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor>, Eigen::Unaligned>
+        templateMat(temp.data, n, 3);
+
+    Eigen::Matrix3d hMatrix = elems.topRows(n).transpose() * templateMat;
+
+    Eigen::JacobiSVD<Eigen::Matrix3d> svd(hMatrix, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::Matrix3d U = svd.matrixU();
+    Eigen::Vector3d S = svd.singularValues();
+    Eigen::Matrix3d V = svd.matrixV();
+
+    Eigen::Matrix3d rotationMatrix = V * U.transpose();
+
+    if (rotationMatrix.determinant() < 0)
+    {
+        Eigen::Matrix3d flip = Eigen::Matrix3d::Identity();
+        flip(2, 2) = -1.0;
+        rotationMatrix = V * flip * U.transpose();
+    }
+
+    Eigen::Matrix<double, Eigen::Dynamic, 3> actualRotated = elems.topRows(n) * rotationMatrix.transpose();
+
+    Eigen::MatrixXd distMatrix(n, n);
+
+    for (size_t r = 0; r < n; ++r)
+    {
+        for (size_t c = 0; c < n; ++c)
+        {
+            distMatrix(r, c) = (actualRotated.row(r) - templateMat.row(c)).squaredNorm();
+        }
+    }
+
+    // This is slow
+    std::vector<std::vector<double>> costMatrix(n, std::vector<double>(n));
+
+    for (size_t i = 0; i < n; ++i)
+    {
+        for (size_t j = 0; j < n; ++j)
+        {
+            costMatrix[i][j] = distMatrix(i, j);
+        }
+    }
+    HungarianAlgorithm hungarian;
+    std::vector<int> assignment;
+    double totalCost = hungarian.Solve(costMatrix, assignment);
+
+    double rmsd = std::sqrt(totalCost / static_cast<double>(n));
+
+    return max(0.0, 1.0 - rmsd);
 }
 
-void analyzeAtoms(const Eigen::Vector3d &center, const double weights[], const double allCoords[], size_t numAtoms) noexcept
+std::array<double, 4> analyzeAtoms(const Eigen::Vector3d &center, const double weights[], const double allCoords[], size_t numAtoms) noexcept
 {
     std::vector<size_t> indices(numAtoms);
     std::iota(indices.begin(), indices.end(), 0);
@@ -88,7 +138,7 @@ void analyzeAtoms(const Eigen::Vector3d &center, const double weights[], const d
                       [&](size_t i, size_t j)
                       { return weights[i] > weights[j]; });
 
-    double result[4];
+    std::array<double, 4> result;
     Eigen::Matrix<double, 8, 3, Eigen::RowMajor> vecs;
 
     for (int i = 0; i < static_cast<int>(AtomShapeType::COUNT); ++i)
@@ -113,8 +163,8 @@ void analyzeAtoms(const Eigen::Vector3d &center, const double weights[], const d
             vecs.row(j) = normalized / (n + 1e-12);
         }
 
-        std::cout << "--- Template: " << " (" << needed << " neighbors) ---" << std::endl;
-        std::cout << vecs.topRows(needed) << std::endl;
         result[i] = alignScore(vecs.topRows(needed), lookup);
     }
+
+    return result;
 }
