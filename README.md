@@ -53,6 +53,7 @@ Sorin:
 * The parallel approach kills all profilers used. 
 * Treid using *viztracer*. Eats more than 32 GB ram and kills the machine. Swiched to a max depth of 5. 
 * The log is a json of around 1GB. Vs-code cant open it. Swiching to a max depth of 4. Noted a huge reduction in time. From minutes to secconds.
+* Sucess! The hard test finishes in 1-2 secconds. The paraleism must be added to pre-processing now.
 
 Gabriela:
 * Looking over the Materials site and capabilities.
