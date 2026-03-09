@@ -1,4 +1,10 @@
 # Project: Local Structural Order Parameter (LSOP) analysis. 
+
+## Team 
+* Hazaparu Sorin-Daniel (2025-2026 AAC)
+* Grosu Gabriela-Cătălina (2025-2026 AAC)
+
+## Description
 Instead of just counting how many neighbors an atom has, the program calculates the geometric quality of the neighborhood. The code takes the positions of all atoms in a Armstrong difined radius box and calculates:
 1. Bond Angles: The precise angle between every neighbor-center-neighbor trio.
 2. Symmetry Matching: How closely those angles match ideal mathematical shapes (like a perfect tetrahedron or octahedron).
@@ -6,6 +12,13 @@ Instead of just counting how many neighbors an atom has, the program calculates 
 ## Why calculate it  
 1. Mapping Disorder and Defects
 2. Identifying Phase Transitions(melting point)
+
+
+## Scenarios
+We choose 3 scenarios based on the computation difficulty and resoruces needed:
+ * Easy: Silicon, with 25 neighbors and a cutoff value of 4 
+ * Hard: Lithium Oxide, with 50 neighbors and a cutoff value of 10
+ * Cluster: Hexagonal Lithium Oxide, with 100 neighbors and a cutoff value of 25
 
 # Implementation
 To achive the desired outcome we must implement the following steps:
@@ -47,18 +60,14 @@ For the "Hard" test the C++ binding achieved a speedup of several orders of magn
 
 # Findings
 
-TODO:
-naive_main has average of 3.40 minutes for easy scenario
-hours needed naive_main for Hard scenario
+| Implementation Strategy | Easy Scenario (Avg.) | Hard Scenario (Avg.) |
+| :--- | :---: | :---: |
+| **Naive Sequential (Python)** | 3.40 min | > 2.0 hours |
+| **Parallel Execution (Python)** | 12.0 sec | > 15.0 min |
+| **C++ Binding (Hybrid)** | 5.0 sec | 6.0 min* |
+| **Parallel Hybrid (Optimized)** | **< 1.0 sec** | **40.0 sec** |
 
-paralel_main has average of 12 secconds for easy scenario
-paralel_main takes more than 15 minuts for hard scenario
-
-modular_main has average 5 secconds for easy scenario
-modular_main has average 6 minutes for hard scenario(6 minutes for pre_processing, 0.01 secconds for cpp bind)
-modular_main with paraleism has average 40 secconds for hard scenario(0.030 secconds for cpp bind)
-
-
+Note on Bottlenecks: In the Hybrid implementations, the core C++ computation of order parameters required only 0.01s and 0.03s respectively. The remaining execution time is attributed to Python-side data pre-processing and I/O overhead.
 # Raports
 
 ## Week 1
