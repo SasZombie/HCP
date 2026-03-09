@@ -11,8 +11,8 @@ KPROFILE_PATH="Results/kprofile_${SCRIPT_TESTED}"
 
 rm Results/*
 
-set -xe
-
+#Note: The profilers might crash due to broken return adresses when using
+#Paralel function
 python3 -m cProfile -o $SCRIPT_PATH.prof -s cumulative $SCRIPT_TESTED.py >> $SCRIPT_PATH.txt
 
 kernprof -l -o $KPROFILE_PATH.lprof $SCRIPT_TESTED.py
