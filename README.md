@@ -34,11 +34,16 @@ Since the serial fraction is just 0.02%, running this on multiple cores the theo
 
 # Findings
 
+TODO:
 naive_main has average of 3.40 minutes for easy scenario
 hours needed naive_main for Hard scenario
 
 paralel_main has average of 12 secconds for easy scenario
 paralel_main takes more than 15 minuts for hard scenario
+
+modular_main has average 5 secconds for easy scenario
+modular_main has average 6 minutes for hard scenario(6 minutes for pre_processing, 0.01 secconds for cpp bind)
+modular_main with paraleism has average 40 secconds for hard scenario(0.030 secconds for cpp bind)
 
 
 # Raports
@@ -63,3 +68,5 @@ Gabriela:
 * Python libs dont work, swiching to minimal dependencies ones.
 * Organised repo and requirements.
 * After the hard scenario fails with paraleism, started looking into C++ openmp speed up options.
+* Pybind11 is a perfect fit. Reimplementing the whole LSOP is too difficult. Going for a minimialist version in C++.
+* Added ompen mp to c++ bindings.
