@@ -1,12 +1,4 @@
-# Installation
-
-Use venv
-
-pip install -r requirements.txt
-
-
-## What is it
-Local Structural Order Parameter (LSOP) analysis. 
+# Project: Local Structural Order Parameter (LSOP) analysis. 
 Instead of just counting how many neighbors an atom has, the program calculates the geometric quality of the neighborhood. The code takes the positions of all atoms in a Armstrong difined radius box and calculates:
 1. Bond Angles: The precise angle between every neighbor-center-neighbor trio.
 2. Symmetry Matching: How closely those angles match ideal mathematical shapes (like a perfect tetrahedron or octahedron).
@@ -31,6 +23,27 @@ Since the serial fraction is just 0.02%, running this on multiple cores the theo
 * **Claim B**: Algorithmic Bottleneck. Micro-profiling reveals that get_order_parameters is the primary computational bottleneck (86.1% of runtime). This function performs heavy trigonometric and spherical harmonic calculations in Python. A C++ implementation using a library like Eigen or GSL for the math, exposed via pybind11, would significantly reduce the 'Per Hit' time by eliminating Python's object overhead and utilizing SIMD vectorization.
 
 
+While the initial [parallel implementation](paralel_main.py "Implementation") in Python (utilizing a worker-pool architecture) yielded significant performance gains—reducing execution time for baseline test cases from minutes to seconds—the scalability limits were reached during high-complexity "Hard" test scenarios. Since the atomic order parameters are independent of one another, the workload is embarrassingly parallel, allowing for a lock-free execution model. However, the inherent overhead of the Python interpreter remained the primary bottleneck.
+
+To address this, the architecture was transitioned to a hybrid C++/Python framework. Rather than refactoring the entire library, a targeted optimization strategy was employed by re-implementing the computationally expensive [get_order_parameters](CppBindings/src/HarmonicModule.cpp "Implementation") function as a C++ extension.
+
+### Key Implementation Details:
+* Linear Assignment Optimization: The implementation utilizes the [Hungarian Algorithm](https://github.com/mcximing/hungarian-algorithm-cpp.git "Lib Site") to solve the assignment problem efficiently, reducing the complexity of atomic mapping.
+
+* Linear Algebra Integration: The [Eigen library](https://github.com/PX4/eigen.git "Lib Site") was integrated to handle high-performance matrix operations and coordinate transformations with SIMD optimizations.
+
+* Domain-Specific Constraints: To ensure development efficiency, the implementation was scoped specifically to the geometric shapes relevant to this study, rather than a generalized library for all possible configurations.
+
+This architectural shift leverages the interoperability of C++ for low-level memory management and heavy numerical computation while maintaining the flexibility of Python for high-level data orchestration.
+
+This resulted in a transformative increase in computational throughput. By offloading the function logic to a compiled environment, we achieved near-linear scaling across CPU cores, effectively bypassing the constraints of the GIL.
+
+The specialized implementation reduced the time complexity overhead
+associated with high-dimensional atomic configurations.
+For the "Hard" test the C++ binding achieved a speedup of several orders of magnitude. This optimization shifts the primary bottleneck from CPU-bound processing to I/O operations, enabling the processing of large-scale molecular trajectories that were previously considered computationally prohibitive.
+
+
+![SnakevizCpp Picture](Data/SnakeVizParalel.png)
 
 # Findings
 
@@ -70,3 +83,19 @@ Gabriela:
 * After the hard scenario fails with paraleism, started looking into C++ openmp speed up options.
 * Pybind11 is a perfect fit. Reimplementing the whole LSOP is too difficult. Going for a minimialist version in C++.
 * Added ompen mp to c++ bindings.
+
+
+# Installation
+
+Our Recomandation is using venv:
+```
+python3 -m venv venv # or virtualvenv venv (Arch linux)
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+cmake --preset release
+cmake --build --preset release -j
+```
+This creates the actual bindings for your target machine. Then you may run modular_main.py.
