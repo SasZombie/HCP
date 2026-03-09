@@ -151,7 +151,9 @@ def main(target_min_len, search_cutoff, element)->None:
     
     logger.info("Started cpp module") 
     results = PythonHarmonicModule.analyze_atoms(centers_np, all_weights, all_neighbor_coords, len(struct))
-                            
+    
+    logger.info("Cpp module ended") 
+                
             
     with open("cpp_local_order.info", "w") as file:
         file.write(f"Order Parameter Types: {types_to_check}\n")

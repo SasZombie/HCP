@@ -23,11 +23,6 @@ target_link_options(project_sanitizers INTERFACE
 
 include(FetchContent)
 
-FetchContent_Declare(googletest
-    URL https://github.com/google/googletest/archive/refs/heads/main.zip
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
-FetchContent_MakeAvailable(googletest)
-
 FetchContent_Declare(pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
     GIT_TAG v2.13.1)
@@ -49,18 +44,6 @@ target_link_libraries(HarmonicModule
 
 set_target_properties(HarmonicModule PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-
 pybind11_add_module(PythonHarmonicModule src/bindings.cpp)
 target_link_libraries(PythonHarmonicModule PRIVATE HarmonicModule)
 set_target_properties(PythonHarmonicModule PROPERTIES PREFIX "")
-
-add_executable(main src/main.cpp)
-target_link_libraries(main PRIVATE HarmonicModule project_warnings project_sanitizers)
-
-# add_executable(Tests tests/harmonic_tests.cpp)
-# target_link_libraries(Tests PRIVATE
-#     HarmonicModule
-#     GTest::gtest_main
-#     project_warnings
-#     project_sanitizers
-# )
