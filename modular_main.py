@@ -15,6 +15,7 @@ import math
 import json
 import logging
 import numpy as np
+from functools import partial
 from dotenv import load_dotenv
 from mp_api.client import MPRester
 from pymatgen.analysis.local_env import CrystalNN
@@ -22,6 +23,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import LocalStructOrderParams
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.core import Structure
+from concurrent.futures import ProcessPoolExecutor
 import builtins
 #cool hack
 if 'profile' not in builtins.__dict__:
@@ -75,6 +77,34 @@ def get_structure(element, folder="data_cache")->Structure | None:
             
         return struct
     
+def process_chunk(indices, struct, vnn):
+    chunk_results = []
+    for i in indices:
+        info = vnn.get_nn_info(struct, i)
+        center = struct[i].coords
+        weights = np.array([item['weight'] for item in info], dtype=np.float64)
+        neighbors = np.array([item['site'].coords for item in info], dtype=np.float64).flatten()
+        chunk_results.append((center, weights, neighbors))
+    return chunk_results
+
+def pre_process_paralel(struct, vnn, n_workers=None):
+    num_sites = len(struct)
+    indices = list(range(num_sites))
+    
+    chunk_size = 500 
+    chunks = [indices[i:i + chunk_size] for i in range(0, num_sites, chunk_size)]
+    
+    all_results = []
+    worker_func = partial(process_chunk, struct=struct, vnn=vnn)
+
+    with ProcessPoolExecutor(max_workers=n_workers) as executor:
+        for chunk_result in executor.map(worker_func, chunks):
+            all_results.extend(chunk_result)
+
+    all_centers, all_weights, all_neighbor_coords = zip(*all_results)
+    
+    return list(all_centers), list(all_weights), list(all_neighbor_coords)
+    
 @profile  # type: ignore
 def main(target_min_len, search_cutoff, element)->None:
     logger = custom_logger()
@@ -115,17 +145,7 @@ def main(target_min_len, search_cutoff, element)->None:
     types_to_check = ["tet", "oct", "bcc", "sq_pyr"]
     vnn = VoronoiNN(tol=0.1, allow_pathological=True, cutoff=search_cutoff)
        
-    all_centers = []
-    all_weights = []
-    all_neighbor_coords = []
-
-    for i in range(len(struct)):
-        info = vnn.get_nn_info(struct, i)
-        
-        all_centers.append(struct[i].coords) #type: ignore
-        
-        all_weights.append(np.array([item['weight'] for item in info], dtype=np.float64))
-        all_neighbor_coords.append(np.array([item['site'].coords for item in info], dtype=np.float64).flatten())
+    all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn)
    
     centers_np = np.array(all_centers)
     
@@ -139,9 +159,7 @@ def main(target_min_len, search_cutoff, element)->None:
             file.write(f"Site {i}: {data}\n")
 
             
-# 10 - 15 min => 50
-# 2-5 hours => 80
-# TARGET_MIN_LENGTH = 20.0 
+
 if __name__ == "__main__":
     logger = custom_logger()
     if len(sys.argv) == 1 or sys.argv[1] == "1": 
