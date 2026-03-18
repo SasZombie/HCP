@@ -71,6 +71,7 @@ static constexpr AtomTemplate LOOKUP[] = {
     {sqPyrTemplate, 15}
 
 };
+static_assert(sizeof(LOOKUP) / sizeof(AtomTemplate) == static_cast<long>(AtomShapeType::COUNT));
 
 // Kabsch and Hungarian Algorithms
 double alignScore(const Eigen::Matrix<double, 24, 3, Eigen::RowMajor> &elems, const AtomTemplate &temp) noexcept
