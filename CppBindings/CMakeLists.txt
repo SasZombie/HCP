@@ -8,17 +8,9 @@ add_library(project_warnings INTERFACE)
 target_compile_options(project_warnings INTERFACE
     $<$<CONFIG:Debug>:-Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith
     -Wmissing-declarations -Winline -Wundef -Wcast-qual -Wshadow
-    -Wwrite-strings -Wno-unused-parameter -Wfloat-equal>
+    -Wwrite-strings -Wno-unused-parameter -Wfloat-equal -g -ggdb -O2>
 
     $<$<CONFIG:Release>:-O3>
-)
-
-add_library(project_sanitizers INTERFACE)
-target_compile_options(project_sanitizers INTERFACE
-    $<$<CONFIG:Debug>:-fsanitize=undefined -fsanitize=address -fsanitize=leak -g>
-)
-target_link_options(project_sanitizers INTERFACE
-    $<$<CONFIG:Debug>:-fsanitize=undefined -fsanitize=address -fsanitize=leak>
 )
 
 include(FetchContent)
@@ -36,10 +28,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(eigen)
 
 add_library(HarmonicModule src/HarmonicModule.cpp src/Hungarian.cpp)
+
 target_include_directories(HarmonicModule PUBLIC include)
 target_link_libraries(HarmonicModule
     PUBLIC Eigen3::Eigen
-    PRIVATE project_warnings project_sanitizers)
+    PRIVATE project_warnings)
 
 
 set_target_properties(HarmonicModule PROPERTIES POSITION_INDEPENDENT_CODE ON)
