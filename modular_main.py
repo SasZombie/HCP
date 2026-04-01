@@ -145,11 +145,12 @@ def main(target_min_len, search_cutoff, element)->None:
     types_to_check = ["tet", "oct", "bcc", "sq_pyr"]
     vnn = VoronoiNN(tol=0.1, allow_pathological=True, cutoff=search_cutoff)
        
-    all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn)
+    all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, 2)
    
     centers_np = np.array(all_centers)
     
-    logger.info("Started cpp module") 
+    logger.info("Started cpp module")
+    print("Len struct = ", len(struct))
     results = PythonHarmonicModule.analyze_atoms(centers_np, all_weights, all_neighbor_coords, len(struct))
     
     logger.info("Cpp module ended") 

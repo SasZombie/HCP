@@ -108,3 +108,27 @@ cmake --preset release
 cmake --build --preset release -j
 ```
 This creates the actual bindings for your target machine. Then you may run modular_main.py.
+
+
+16
+________________________________________________________
+Executed in   43.24 secs    fish           external
+   usr time    9.03 secs  419.00 micros    9.03 secs
+   sys time    0.28 secs  244.00 micros    0.28 secs
+
+8
+________________________________________________________
+Executed in   65.55 secs    fish           external
+   usr time    8.88 secs  526.00 micros    8.88 secs
+   sys time    0.25 secs   89.00 micros    0.25 secs
+
+4
+________________________________________________________
+Executed in  109.68 secs    fish           external
+   usr time    8.52 secs    0.00 micros    8.52 secs
+   sys time    0.25 secs  592.00 micros    0.25 secs
+2
+________________________________________________________
+Executed in  200.49 secs    fish           external
+   usr time    8.58 secs  419.00 micros    8.58 secs
+   sys time    0.28 secs  240.00 micros    0.28 secs
