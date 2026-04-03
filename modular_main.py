@@ -106,7 +106,7 @@ def pre_process_paralel(struct, vnn, n_workers=None):
     return list(all_centers), list(all_weights), list(all_neighbor_coords)
     
 @profile  # type: ignore
-def main(target_min_len, search_cutoff, element)->None:
+def main(target_min_len, search_cutoff, element, max_workers=None)->None:
     logger = custom_logger()
     load_dotenv()
     api_key = os.getenv('MAT_PROJ_KEY')
@@ -145,7 +145,7 @@ def main(target_min_len, search_cutoff, element)->None:
     types_to_check = ["tet", "oct", "bcc", "sq_pyr"]
     vnn = VoronoiNN(tol=0.1, allow_pathological=True, cutoff=search_cutoff)
        
-    all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, 2)
+    all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, max_workers)
    
     centers_np = np.array(all_centers)
     
@@ -165,12 +165,24 @@ def main(target_min_len, search_cutoff, element)->None:
 
 if __name__ == "__main__":
     logger = custom_logger()
-    if len(sys.argv) == 1 or sys.argv[1] == "1": 
+    
+    test_type = "1"
+    max_workers = 2
+    
+    if len(sys.argv) > 1:
+        test_type = sys.argv[1]
+    
+    if len(sys.argv) > 2:
+        max_workers = int(sys.argv[2])
+    
+    logger.info(f"Config: Test Type {test_type}, Workers: {max_workers}")
+
+    if test_type == "1":
         logger.info("Started easy test")
-        main(25, 4, "mp-149")
-    elif sys.argv[1] == "2":
+        main(25, 4, "mp-149", max_workers)
+    elif test_type == "2":
         logger.info("Started Hard test")
-        main(50, 10, "mp-1960")
+        main(50, 10, "mp-1960", max_workers)
     else:
         logger.info("Started Cluster test")
-        main(100, 20, "mp-1188310")
+        main(100, 20, "mp-1188310", max_workers)
