@@ -15,17 +15,17 @@ target_compile_options(project_warnings INTERFACE
 
 include(FetchContent)
 
-FetchContent_Declare(pybind11
+fetchcontent_declare(pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
     GIT_TAG v2.13.1)
-FetchContent_MakeAvailable(pybind11)
+fetchcontent_makeavailable(pybind11)
 
-FetchContent_Declare(
+fetchcontent_declare(
     eigen
     GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
     GIT_TAG 3.4.0
 )
-FetchContent_MakeAvailable(eigen)
+fetchcontent_makeavailable(eigen)
 
 add_library(HarmonicModule src/HarmonicModule.cpp src/Hungarian.cpp)
 
