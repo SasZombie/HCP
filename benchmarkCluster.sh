@@ -22,7 +22,7 @@ do
     export SLURM_CPUS_PER_TASK=$T
     
     /usr/bin/time -f "$T | %e | %M" -a -o $LOG_FILE \
-    apptainer exec imagineHPC.sif ./venv/bin/python3 main.py $TEST_TYPE $T
+    apptainer exec imagineHPC.sif ./venv/bin/python3 modular_main.py $TEST_TYPE $T
     
     echo "Completed $T threads."
 done
