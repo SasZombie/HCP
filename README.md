@@ -95,7 +95,7 @@ Gabriela:
 
 ## Week 2
 
-Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster we get the results:
+Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster (Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz) we get the results:
 
 | Threads | Wall Time (s) |
 | :--- | :--- | 
