@@ -28,7 +28,7 @@ do
     RESULTS_DIR="PROFILING_T${T}_$(date +%H%M)"
 
     apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \
-        vtune -collect hotspots \
+        vtune -collect threading \
         -result-dir $RESULTS_DIR \
         -start-paused \
         ./venv/bin/python3 modular_main.py $TEST_TYPE $T
