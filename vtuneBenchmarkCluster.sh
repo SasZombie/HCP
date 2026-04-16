@@ -31,7 +31,7 @@ do
         /bin/bash -c "export LD_PRELOAD=/usr/lib/libstdc++.so.6; \
         /opt/intel/oneapi/vtune/latest/bin64/vtune -collect hotspots \
         -knob sampling-mode=sw \
-        -data-limit=0 \
+        -knob stack-size=0 \
         -result-dir $RESULTS_DIR \
         -- ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
     
