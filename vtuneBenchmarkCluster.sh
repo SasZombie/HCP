@@ -29,7 +29,6 @@ do
 
     apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \
         vtune -collect hotspots \
-        -knob sampling-mode=sw \
         -result-dir $RESULTS_DIR \
         -start-paused \
         ./venv/bin/python3 modular_main.py $TEST_TYPE $T
