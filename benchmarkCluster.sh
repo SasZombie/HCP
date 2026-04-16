@@ -11,8 +11,8 @@ LOG_FILE="threadResults.log"
 TEST_TYPE="3"
 
 echo "--- Benchmark Start: $(date) ---" > $LOG_FILE
-echo "Threads | Wall_Time (s) | Max_RSS (KB)" >> $LOG_FILE
-echo "--------------------------------------" >> $LOG_FILE
+echo "Threads | Wall_Time (s) |" >> $LOG_FILE
+echo "-------------------------" >> $LOG_FILE
 
 for T in "${THREADS[@]}"
 do
@@ -27,7 +27,7 @@ do
     END=$(date +%s.%N)
     DIFF=$(echo "$END - $START" | bc)
     
-    echo "$T | $DIFF | N/A" >> $LOG_FILE
+    echo "$T | $DIFF" >> $LOG_FILE
     
     echo "Completed $T threads."
 done

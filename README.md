@@ -93,6 +93,24 @@ Gabriela:
 * Pybind11 is a perfect fit. Reimplementing the whole LSOP is too difficult. Going for a minimialist version in C++.
 * Added ompen mp to c++ bindings.
 
+## Week 2
+
+Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster we get the results:
+
+| Threads | Wall Time (s) |
+| :--- | :--- | 
+| 1 | 47.188177105 |
+| 2 | 4.657180860 | 
+| 4 | 5.781218087 | 
+| 8 | 6.841852061 | 
+| 16 | 4.594425071 |
+| 32 | 4.511585210 |
+
+![SpeedUp Picture](Data/SpeedUp.png)
+
+This plot and table give a clear answer:  
+* Massive Speedup: There is a huge performance gain going from 1 thread ($47.19s$) to 2 threads ($4.66s$). This suggests the single-threaded version might be hitting a specific bottleneck that parallelism solves immediately.
+* Diminishing Returns: After 2 threads, the execution time stays relatively flat (between $4.5s$ and $6.8s$) actually increasing after 8 threads and decreasing at 16.
 
 # Installation
 
@@ -108,27 +126,3 @@ cmake --preset release
 cmake --build --preset release -j
 ```
 This creates the actual bindings for your target machine. Then you may run modular_main.py.
-
-
-16
-________________________________________________________
-Executed in   43.24 secs    fish           external
-   usr time    9.03 secs  419.00 micros    9.03 secs
-   sys time    0.28 secs  244.00 micros    0.28 secs
-
-8
-________________________________________________________
-Executed in   65.55 secs    fish           external
-   usr time    8.88 secs  526.00 micros    8.88 secs
-   sys time    0.25 secs   89.00 micros    0.25 secs
-
-4
-________________________________________________________
-Executed in  109.68 secs    fish           external
-   usr time    8.52 secs    0.00 micros    8.52 secs
-   sys time    0.25 secs  592.00 micros    0.25 secs
-2
-________________________________________________________
-Executed in  200.49 secs    fish           external
-   usr time    8.58 secs  419.00 micros    8.58 secs
-   sys time    0.28 secs  240.00 micros    0.28 secs
