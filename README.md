@@ -95,7 +95,7 @@ Gabriela:
 
 ## Week 2
 
-Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster (Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz) we get the results:
+Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster (Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz) we get the results:
 
 | Threads | Wall Time (s) |
 | :--- | :--- | 
@@ -106,11 +106,26 @@ Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster (Intel(R) X
 | 16 | 4.594425071 |
 | 32 | 4.511585210 |
 
-![SpeedUp Picture](Data/SpeedUp.png)
+And for the dgxa100(AMD EPYC 7742) node:
 
-This plot and table give a clear answer:  
-* Massive Speedup: There is a huge performance gain going from 1 thread ($47.19s$) to 2 threads ($4.66s$). This suggests the single-threaded version might be hitting a specific bottleneck that parallelism solves immediately.
-* Diminishing Returns: After 2 threads, the execution time stays relatively flat (between $4.5s$ and $6.8s$) actually increasing after 8 threads and decreasing at 16.
+Threads | Wall_Time (s) |
+| :--- | :--- | 
+| 1 | 55.806924714 |
+| 2 | 4.964595428 |
+| 4 | 4.431720859 |
+| 8 | 4.508872473 |
+| 16 | 4.441886920 |
+| 32 | 4.462919071 |
+
+![SpeedUpIntel Picture](Data/SpeedUpIntel.png)
+![SpeedUpAmd Picture](Data/SpeedUpAmd.png)
+## Conclusions
+
+### 1. Anomalous Initial Scaling and Parallel Efficiency:  
+The transition from 1 to 2 threads yields a speedup factor of approximately $10.13\times$ on the Intel node and $11.24\times$ on the AMD node. In a standard computational model, speedup $S$ is bounded by the number of processors $p$ ($S \le p$); however, these results suggest a cache-resident transition. The single-threaded execution likely suffers from severe cache thrashing or memory latency penalties that are mitigated when the workload is partitioned, allowing the working set to fit within the aggregate L2/L3 cache capacity of multiple cores.
+### 2. Scalability Plateaus and Synchronization Overhead  
+Beyond $n=2$ threads, both architectures encounter a performance plateau. On the Intel node, a regressive trend is observed at $n=8$ ($6.84s$), likely attributable to NUMA (Non-Uniform Memory Access) effects or bus contention. The AMD EPYC 7742 (Rome) architecture demonstrates superior stability, maintaining a consistent wall time of $\approx 4.4s$. This suggests that the application becomes I/O bound or limited by Amhdahl's Law, where the sequential portion of the algorithm dominates the remaining execution time.
+e achieves the lowest absolute wall time at $n=32$ ($4.51s$), the AMD node exhibits a more robust scaling curve with lower variance. The AMD node’s ability to maintain performance across high thread counts is indicative of its high-bandwidth Infinity Fabric and larger L3 cache hierarchy, which effectively handles the synchronization overhead that causes the localized performance degradation seen in the Intel results at mid-range threading.
 
 # Installation
 

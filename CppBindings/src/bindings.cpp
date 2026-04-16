@@ -4,6 +4,7 @@
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
 #include <valgrind/callgrind.h>
+#include <ittnotify.h>
 
 #include <omp.h>
 
@@ -40,6 +41,8 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
                 py::gil_scoped_release release;
                 CALLGRIND_START_INSTRUMENTATION;
 
+                __itt_resume();
+
                 #pragma omp parallel for schedule(guided)
                 for (int i = 0; i < static_cast<int>(n_structures); ++i)
                 {
@@ -52,6 +55,7 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
                         all_results(i, j) = scores[j];
                     }
                 }
+                __itt_pause();
 
                 CALLGRIND_STOP_INSTRUMENTATION;
             }

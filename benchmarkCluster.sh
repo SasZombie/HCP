@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=dgxa100
+#SBATCH --partition=haswell
 #SBATCH --job-name=scaling_test
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -23,7 +23,12 @@ do
     
     START=$(date +%s.%N)
     
-    apptainer exec ../imagineHPC.sif ./venv/bin/python3 modular_main.py $TEST_TYPE $T
+    RESULTS_DIR="vtune_results_T${T}"
+
+    apptainer exec ../imagineHPC.sif \
+        vtune -collect hotspots \
+        -result-dir $RESULTS_DIR \
+        ./venv/bin/python3 modular_main.py $TEST_TYPE $T
     
     END=$(date +%s.%N)
     DIFF=$(echo "$END - $START" | bc)
