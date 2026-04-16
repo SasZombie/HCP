@@ -37,11 +37,6 @@ do
         echo "[$(date +%H:%M:%S)] EROARE: Colectarea perf a eșuat."
     fi
     
-    if [ $? -eq 0 ]; then
-        echo "[$(date +%H:%M:%S)] SUCCES: Raport generat în $RESULTS_DIR"
-    else
-        echo "[$(date +%H:%M:%S)] EROARE: Profilarea pentru T=$T a eșuat."
-    fi
     echo "------------------------------------------------------"
 done
 
