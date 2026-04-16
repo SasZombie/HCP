@@ -28,7 +28,12 @@ do
     RESULTS_DIR="PROFILING_T${T}_$(date +%H%M)"
 
     apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \
-        /bin/bash -c "export LD_PRELOAD=/usr/lib/libstdc++.so.6; /opt/intel/oneapi/vtune/latest/bin64/vtune -collect threading -result-dir $RESULTS_DIR -start-paused ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
+        /bin/bash -c "export LD_PRELOAD=/usr/lib/libstdc++.so.6; \
+        /opt/intel/oneapi/vtune/latest/bin64/vtune -collect hotspots \
+        -knob sampling-mode=sw \
+        -data-limit=0 \
+        -result-dir $RESULTS_DIR \
+        -- ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
     
     if [ $? -eq 0 ]; then
         echo "[$(date +%H:%M:%S)] SUCCES: Raport generat în $RESULTS_DIR"
