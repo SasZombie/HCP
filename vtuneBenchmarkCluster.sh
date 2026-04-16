@@ -25,18 +25,21 @@ for T in "${VTUNE_THREADS[@]}"
 do
     echo "[$(date +%H:%M:%S)] Inițiere analiză Hardware pentru T=$T thread-uri..."
     
-    echo "[$(date +%H:%M:%S)] Colectare date brute via PERF pentru T=$T..."
+    RESULTS_DIR="PROFILING_T${T}_$(date +%H%M)"
 
     apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \
         /bin/bash -c "export LD_PRELOAD=/usr/lib/libstdc++.so.6; \
-        perf record -g -e task-clock -F 99 -o ${RESULTS_DIR}.perf -- ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
-
-    if [ $? -eq 0 ]; then
-        echo "[$(date +%H:%M:%S)] SUCCES: Date brute perf salvate în ${RESULTS_DIR}.perf"
-    else
-        echo "[$(date +%H:%M:%S)] EROARE: Colectarea perf a eșuat."
-    fi
+        /opt/intel/oneapi/vtune/latest/bin64/vtune -collect hotspots \
+        -knob sampling-mode=sw \
+        -knob stack-size=0 \
+        -result-dir $RESULTS_DIR \
+        -- ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
     
+    if [ $? -eq 0 ]; then
+        echo "[$(date +%H:%M:%S)] SUCCES: Raport generat în $RESULTS_DIR"
+    else
+        echo "[$(date +%H:%M:%S)] EROARE: Profilarea pentru T=$T a eșuat."
+    fi
     echo "------------------------------------------------------"
 done
 
