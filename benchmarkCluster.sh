@@ -20,8 +20,15 @@ do
     
     export SLURM_CPUS_PER_TASK=$T
     
-    /usr/bin/time -f "$T | %e | %M" -a -o $LOG_FILE \
+    START=$(date +%s.%N)
+    
     apptainer exec ../imagineHPC.sif ./venv/bin/python3 modular_main.py $TEST_TYPE $T
+    
+    END=$(date +%s.%N)
+    # Calculăm diferența (Wall Time)
+    DIFF=$(echo "$END - $START" | bc)
+    
+    echo "$T | $DIFF | N/A" >> $LOG_FILE
     
     echo "Completed $T threads."
 done
