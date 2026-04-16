@@ -27,7 +27,8 @@ do
     
     RESULTS_DIR="PROFILING_T${T}_$(date +%H%M)"
 
-    apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \
+    apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \ 
+        env LD_PRELOAD=/usr/lib/libstdc++.so.6 \
         vtune -collect threading \
         -result-dir $RESULTS_DIR \
         -start-paused \
