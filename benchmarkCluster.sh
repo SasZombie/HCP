@@ -25,7 +25,6 @@ do
     apptainer exec ../imagineHPC.sif ./venv/bin/python3 modular_main.py $TEST_TYPE $T
     
     END=$(date +%s.%N)
-    # Calculăm diferența (Wall Time)
     DIFF=$(echo "$END - $START" | bc)
     
     echo "$T | $DIFF | N/A" >> $LOG_FILE
