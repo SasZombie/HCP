@@ -27,7 +27,9 @@ do
 
     apptainer exec ../imagineHPC.sif \
         vtune -collect hotspots \
+        -knob sampling-mode=user \
         -result-dir $RESULTS_DIR \
+        -start-paused \
         ./venv/bin/python3 modular_main.py $TEST_TYPE $T
     
     END=$(date +%s.%N)

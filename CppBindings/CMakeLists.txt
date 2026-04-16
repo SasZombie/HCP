@@ -10,7 +10,7 @@ target_compile_options(project_warnings INTERFACE
     -Wmissing-declarations -Winline -Wundef -Wcast-qual -Wshadow
     -Wwrite-strings -Wno-unused-parameter -Wfloat-equal -g -ggdb -O2>
 
-    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-O3 -g>
 )
 
 include(FetchContent)
