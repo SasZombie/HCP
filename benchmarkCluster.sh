@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=32G               
 #SBATCH --output=bench_%j.out   
-#SBATCH --time=00:15:00         
+#SBATCH --time=00:25:00         
 
 THREADS=(1 2 4 8 16 32)
 LOG_FILE="threadResults.log"
