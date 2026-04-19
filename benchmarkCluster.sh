@@ -9,7 +9,7 @@
 
 THREADS=(1 2 4 8 16 32)
 LOG_FILE="threadResults.log"
-TEST_TYPE="3"
+TEST_TYPE="4"
 
 echo "--- Benchmark Start: $(date) ---" > $LOG_FILE
 echo "Threads | Wall_Time (s) |" >> $LOG_FILE
