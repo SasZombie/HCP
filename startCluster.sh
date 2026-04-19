@@ -1,6 +1,7 @@
-#/bin/bash
+#!/bin/bash
+set -xeu
 
-set -xe
+rm -f *.log *.out
+rm -rf vtune_results*
 
-rm -rf *.log *.out vtune_results*
 sbatch benchmarkCluster.sh
