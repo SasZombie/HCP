@@ -3,8 +3,14 @@
 #include <pybind11/numpy.h>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
+
+#ifdef HAVE_VALGRIND
 #include <valgrind/callgrind.h>
+#endif
+
+#ifdef HAVE_VTUNE
 #include <ittnotify.h>
+#endif
 
 #include <omp.h>
 
@@ -16,7 +22,7 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
                               py::list weights_list,
                               py::list coords_list,
                               size_t n_structures)
-        {
+          {
             auto centers_ref = centers.unchecked<2>();
             Eigen::Matrix<double, Eigen::Dynamic, 4, Eigen::RowMajor> all_results(n_structures, 4);
 
@@ -38,12 +44,17 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
 
 
             {
-                py::gil_scoped_release release;
+            
+            py::gil_scoped_release release;
+
+#ifdef HAVE_VALGRIND
                 CALLGRIND_START_INSTRUMENTATION;
+#endif
 
+#ifdef HAVE_VTUNE
                 __itt_resume();
-
-                #pragma omp parallel for schedule(guided)
+#endif
+#pragma omp parallel for schedule(guided)
                 for (int i = 0; i < static_cast<int>(n_structures); ++i)
                 {
                     Eigen::Vector3d c{centers_ref(i, 0), centers_ref(i, 1), centers_ref(i, 2)};
@@ -55,12 +66,17 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
                         all_results(i, j) = scores[j];
                     }
                 }
-                __itt_pause();
 
+#ifdef HAVE_VALGRIND
                 CALLGRIND_STOP_INSTRUMENTATION;
+#endif
+
+#ifdef HAVE_VTUNE
+                __itt_pause();
+#endif
+
+
             }
 
-            return all_results; 
-        }
-    );
+            return all_results; });
 }
