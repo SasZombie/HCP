@@ -63,7 +63,11 @@ def get_structure(element, folder="data_cache")->Structure | None:
         with open(file_path, "r") as f:
             return Structure.from_dict(json.load(f))
 
+    load_dotenv()
     api_key = os.getenv('MAT_PROJ_KEY')
+
+    if not api_key:
+        raise ValueError("Material project key is missing from .env file")
     
     with MPRester(api_key) as mpr:
         docs = mpr.materials.summary.search(material_ids=[element])
@@ -108,12 +112,7 @@ def pre_process_paralel(struct, vnn, n_workers=None):
 @profile  # type: ignore
 def main(target_min_len, search_cutoff, element, max_workers=None)->None:
     logger = custom_logger()
-    load_dotenv()
-    api_key = os.getenv('MAT_PROJ_KEY')
-
-    if not api_key:
-        raise ValueError("Material project key is missing from .env file")
-
+    
     struct = get_structure(element)
     
     if not struct:
