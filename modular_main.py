@@ -187,4 +187,4 @@ if __name__ == "__main__":
         main(100, 20, "mp-1188310", max_workers)
     else:
         logger.info("Started Ultra Cluster Test")
-        main(1000, 1000, "mp-1188310", max_workers)
+        main(1000, 30, "mp-1188310", max_workers)
