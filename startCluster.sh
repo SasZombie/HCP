@@ -1,3 +1,3 @@
 #/bin/bash
 
-srun benchmarkCluster.sh
+sbatch benchmarkCluster.sh
