@@ -8,3 +8,4 @@ CppBindings/build-debug/*
 CppBindings/build-release/*
 data_cache/*
 CppBindings/data_cache/*
+sensor_profile_data

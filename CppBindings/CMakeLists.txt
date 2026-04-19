@@ -27,6 +27,17 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(eigen)
 
+find_path(VALGRIND_INCLUDE_DIR NAMES valgrind/callgrind.h)
+
+set(VTUNE_DIR $ENV{VTUNE_PROFILER_DIR})
+
+if(NOT VTUNE_DIR)
+    message(WARNING "VTUNE_PROFILER_DIR not found. Profiling hooks might fail to compile.")
+else()
+    set(ITT_INCLUDE_DIR "${VTUNE_DIR}/include")
+    find_library(ITT_LIB NAMES ittnotify PATHS "${VTUNE_DIR}/lib64")
+endif()
+
 add_library(HarmonicModule src/HarmonicModule.cpp src/Hungarian.cpp)
 
 target_include_directories(HarmonicModule PUBLIC include)
@@ -38,5 +49,15 @@ target_link_libraries(HarmonicModule
 set_target_properties(HarmonicModule PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 pybind11_add_module(PythonHarmonicModule src/bindings.cpp)
-target_link_libraries(PythonHarmonicModule PRIVATE HarmonicModule)
+
+target_include_directories(PythonHarmonicModule PRIVATE
+    ${VALGRIND_INCLUDE_DIR}
+    ${ITT_INCLUDE_DIR}
+)
+
+target_link_libraries(PythonHarmonicModule PRIVATE
+    HarmonicModule
+    ${ITT_LIB}
+    ${CMAKE_DL_LIBS})
 set_target_properties(PythonHarmonicModule PROPERTIES PREFIX "")
+
