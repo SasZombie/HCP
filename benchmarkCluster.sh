@@ -25,7 +25,13 @@ do
     
     RESULTS_DIR="vtune_results_T${T}"
 
-    apptainer exec ../imagineHPC.sif \
+    apptainer exec \
+        --bind .:/app \
+        --pwd /app \
+        --cleanenv \
+        --env OMP_NUM_THREADS=$T \
+        --env MKL_NUM_THREADS=$T \
+        ../imagineHPC.sif \
         ./venv/bin/python3 modular_main.py $TEST_TYPE $T
     
     END=$(date +%s.%N)
