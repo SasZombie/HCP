@@ -5,4 +5,5 @@
 set -xe
 rm startCluster.sh
 
+git restore startCluster.sh
 git pull
