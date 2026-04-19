@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=32G
 #SBATCH --output=slurm_job_%j.out
-#SBATCH --time=00:40:00
+#SBATCH --time=00:05:00
 
 # Configurare Log File
 LOG_FILE="profiling_session_$(date +%Y%m%d_%H%M).log"
@@ -35,13 +35,43 @@ do
     #     -result-dir $RESULTS_DIR \
     #     -- ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
 
-    apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \
-        /bin/bash -c "export LD_PRELOAD=/usr/lib/libstdc++.so.6; \
-        vtune -collect memory-access \
-        -knob sampling-mode=sw \
-        -result-dir $RESULTS_DIR \
-        -start-paused \
-        -- ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
+    # apptainer exec --bind /tmp:/tmp ../imagineHPC.sif \
+    #     /bin/bash -c "export LD_PRELOAD=/usr/lib/libstdc++.so.6; \
+    #     vtune -collect memory-access \
+    #     -knob sampling-mode=sw \
+    #     -result-dir $RESULTS_DIR \
+    #     -start-paused \
+    #     -- ./venv/bin/python3 modular_main.py $TEST_TYPE $T"
+
+    # sudo sysctl -w kernel.perf_event_paranoid=1
+    # sudo sysctl -w kernel.nmi_watchdog=0
+
+    # vtune -collect hotspots \
+    #   -start-paused \
+    #   -knob sampling-mode=hw \
+    #   -mrte-mode=native \
+    #   -result-dir vtune_intel_results \
+    #   -- python3 modular_main.py
+
+
+    # vtune -report hotspots \
+    # -result-dir vtune_intel_results \
+    # -group-by module,function
+
+    # advixe-cl -collect survey \
+    #       -start-paused \
+    #       -project-dir ./roofline_report \
+    #       -- python3 modular_main.py
+
+    # advixe-cl -collect tripcounts -flop \
+    #     -start-paused \
+    #     -project-dir ./roofline_report \
+    #     -- python3 modular_main.py
+
+
+    # advixe-cl -report roofline \
+    #     -project-dir ./roofline_report \
+    #     -report-output ./harmonic_roofline.html
         
     if [ $? -eq 0 ]; then
         echo "[$(date +%H:%M:%S)] SUCCES: Raport generat în $RESULTS_DIR"
