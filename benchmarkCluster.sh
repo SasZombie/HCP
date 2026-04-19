@@ -30,8 +30,8 @@ do
         --bind .:/app \
         --pwd /app \
         --cleanenv \
+        --env LD_LIBRARY_PATH="/usr/local/lib:/usr/lib/x86_64-linux-gnu" \
         --env OMP_NUM_THREADS=$T \
-        --env MKL_NUM_THREADS=$T \
         ../imagineHPC.sif \
         ./venv/bin/python3 modular_main.py $TEST_TYPE $T
     
