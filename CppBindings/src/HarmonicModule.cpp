@@ -11,6 +11,9 @@ enum struct AtomShapeType
     OCT,
     BCC,
     SQ_PYR,
+    CN,
+    SGL_BD,
+    SQ_FACE_CAP_TRIG_PRIS,
     COUNT
 };
 
@@ -57,6 +60,39 @@ static constexpr double sqPyrTemplate[] = {
     0.f, 0.57735f, 0.f,
     0.f, -0.57735f, 0.f,
     0.f, 0.f, 0.57735f};
+static constexpr double cn12Template[] = {
+    // XY Plane
+    0.70711, 0.70711, 0.00000,
+    0.70711, -0.70711, 0.00000,
+    -0.70711, 0.70711, 0.00000,
+    -0.70711, -0.70711, 0.00000,
+    // XZ Plane
+    0.70711, 0.00000, 0.70711,
+    0.70711, 0.00000, -0.70711,
+    -0.70711, 0.00000, 0.70711,
+    -0.70711, 0.00000, -0.70711,
+    // YZ Plane
+    0.00000, 0.70711, 0.70711,
+    0.00000, 0.70711, -0.70711,
+    0.00000, -0.70711, 0.70711,
+    0.00000, -0.70711, -0.70711};
+
+static constexpr double sglBdTemplate[] = {
+
+    0.00000, 0.00000, 1.00000,
+
+    0.00000, 0.00000, -1.00000};
+static constexpr double sqFaceCapTrigPrisTemplate[] = {
+
+    -0.35355, 0.61237, 0.70711,
+    -0.35355, -0.61237, 0.70711,
+    0.70711, 0.00000, 0.70711,
+
+    -0.35355, 0.61237, -0.70711,
+    -0.35355, -0.61237, -0.70711,
+    0.70711, 0.00000, -0.70711,
+
+    1.00000, 0.00000, 0.00000};
 
 struct AtomTemplate
 {
@@ -68,9 +104,14 @@ static constexpr AtomTemplate LOOKUP[] = {
     {tetTemplate, 12},
     {octTemplate, 18},
     {bccTemplate, 24},
-    {sqPyrTemplate, 15}
+    {sqPyrTemplate, 15},
+    {cn12Template, 36},
+    {sglBdTemplate, 6},
+    {sqFaceCapTrigPrisTemplate, 21}
 
 };
+
+static_assert(sizeof(LOOKUP) / sizeof(AtomTemplate) == static_cast<size_t>(AtomShapeType::COUNT));
 
 // Kabsch and Hungarian Algorithms
 double alignScore(const Eigen::Matrix<double, 24, 3, Eigen::RowMajor> &elems, const AtomTemplate &temp) noexcept

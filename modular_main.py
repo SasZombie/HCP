@@ -166,23 +166,26 @@ def main(target_min_len, search_cutoff, element, max_workers=None)->None:
 if __name__ == "__main__":
     logger = custom_logger()
     
-    test_type = "1"
+    test_type = 1
     max_workers = 2
     
     if len(sys.argv) > 1:
-        test_type = sys.argv[1]
+        test_type = int(sys.argv[1])
     
     if len(sys.argv) > 2:
         max_workers = int(sys.argv[2])
     
     logger.info(f"Config: Test Type {test_type}, Workers: {max_workers}")
 
-    if test_type == "1":
+    if test_type == 1:
         logger.info("Started easy test")
         main(25, 4, "mp-149", max_workers)
-    elif test_type == "2":
+    elif test_type == 2:
         logger.info("Started Hard test")
         main(50, 10, "mp-1960", max_workers)
-    else:
+    elif test_type == 3:
         logger.info("Started Cluster test")
         main(100, 20, "mp-1188310", max_workers)
+    else:
+        logger.info("Started Ultra Cluster Test")
+        main(100000, 1000, "mp-1188310", max_workers)
