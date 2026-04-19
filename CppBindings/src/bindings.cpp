@@ -4,13 +4,13 @@
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
 
-// #ifdef HAVE_VALGRIND
-// #include <valgrind/callgrind.h>
-// #endif
+#ifdef HAVE_VALGRIND
+#include <valgrind/callgrind.h>
+#endif
 
-// #ifdef HAVE_VTUNE
-// #include <ittnotify.h>
-// #endif
+#ifdef HAVE_VTUNE
+#include <ittnotify.h>
+#endif
 
 #include <omp.h>
 
@@ -47,19 +47,19 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
             
             py::gil_scoped_release release;
 
-// #ifdef HAVE_VALGRIND
-//                 CALLGRIND_START_INSTRUMENTATION;
-// #endif
+#ifdef HAVE_VALGRIND
+                CALLGRIND_START_INSTRUMENTATION;
+#endif
 
-// #ifdef HAVE_VTUNE
-//                 __itt_resume();
-// #endif
+#ifdef HAVE_VTUNE
+                __itt_resume();
+#endif
 #pragma omp parallel for schedule(guided)
                 for (int i = 0; i < static_cast<int>(n_structures); ++i)
                 {
                     Eigen::Vector3d c{centers_ref(i, 0), centers_ref(i, 1), centers_ref(i, 2)};
                     
-                    std::array<double, 4> scores = analyzeAtoms(c, tasks[i].w, tasks[i].c, tasks[i].n_atoms);
+                    std::array<double, TemplateSize> scores = analyzeAtoms(c, tasks[i].w, tasks[i].c, tasks[i].n_atoms);
 
                     for(int j = 0; j < 4; ++j) 
                     {
@@ -67,13 +67,13 @@ PYBIND11_MODULE(PythonHarmonicModule, m)
                     }
                 }
 
-// #ifdef HAVE_VALGRIND
-//                 CALLGRIND_STOP_INSTRUMENTATION;
-// #endif
+#ifdef HAVE_VALGRIND
+                CALLGRIND_STOP_INSTRUMENTATION;
+#endif
 
-// #ifdef HAVE_VTUNE
-//                 __itt_pause();
-// #endif
+#ifdef HAVE_VTUNE
+                __itt_pause();
+#endif
             }
 
             return all_results; });

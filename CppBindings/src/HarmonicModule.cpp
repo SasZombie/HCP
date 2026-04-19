@@ -108,13 +108,14 @@ static constexpr AtomTemplate LOOKUP[] = {
     {cn12Template, 36},
     {sglBdTemplate, 6},
     {sqFaceCapTrigPrisTemplate, 21}
-
 };
 
-static_assert(sizeof(LOOKUP) / sizeof(AtomTemplate) == static_cast<size_t>(AtomShapeType::COUNT));
+
+static_assert(TemplateSize == static_cast<size_t>(AtomShapeType::COUNT));
+static_assert(TemplateSize == sizeof(LOOKUP) / sizeof(AtomTemplate));
 
 // Kabsch and Hungarian Algorithms
-double alignScore(const Eigen::Matrix<double, 24, 3, Eigen::RowMajor> &elems, const AtomTemplate &temp) noexcept
+double alignScore(const Eigen::Ref<const Eigen::MatrixXd>& elems, const AtomTemplate &temp) noexcept
 {
     const size_t n = temp.size / 3;
     Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor>, Eigen::Unaligned>
@@ -167,7 +168,7 @@ double alignScore(const Eigen::Matrix<double, 24, 3, Eigen::RowMajor> &elems, co
     return max(0.0, 1.0 - rmsd);
 }
 
-std::array<double, 4> analyzeAtoms(const Eigen::Vector3d &center, const double weights[], const double allCoords[], size_t numAtoms) noexcept
+std::array<double, TemplateSize> analyzeAtoms(const Eigen::Vector3d &center, const double weights[], const double allCoords[], size_t numAtoms) noexcept
 {
     std::vector<size_t> indices(numAtoms);
     std::iota(indices.begin(), indices.end(), 0);
@@ -179,8 +180,8 @@ std::array<double, 4> analyzeAtoms(const Eigen::Vector3d &center, const double w
                       [&](size_t i, size_t j)
                       { return weights[i] > weights[j]; });
 
-    std::array<double, 4> result;
-    Eigen::Matrix<double, 8, 3, Eigen::RowMajor> vecs;
+    std::array<double, TemplateSize> result;
+    Eigen::Matrix<double, 12, 3, Eigen::RowMajor> vecs;
 
     for (int i = 0; i < static_cast<int>(AtomShapeType::COUNT); ++i)
     {
