@@ -3,13 +3,14 @@
 #SBATCH --job-name=scaling_test
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=32G               
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=64G               
 #SBATCH --output=bench_%j.out   
 #SBATCH --time=00:25:00         
 
 THREADS=(1 2 4 8 16 32)
 LOG_FILE="threadResults.log"
-TEST_TYPE="4"
+TEST_TYPE="2"
 
 echo "--- Benchmark Start: $(date) ---" > $LOG_FILE
 echo "Threads | Wall_Time (s) |" >> $LOG_FILE
