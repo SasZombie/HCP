@@ -3,7 +3,7 @@
 #SBATCH --job-name=scaling_test
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=64G               
 #SBATCH --output=bench_%j.out   
 #SBATCH --time=00:25:00         

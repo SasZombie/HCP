@@ -95,37 +95,62 @@ Gabriela:
 
 ## Week 2
 
-Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster (Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz) we get the results:
+To evaluate the scalability and architectural portability of the algorithm, the deployment was benchmarked across two heterogeneous HPC environments on the UPB cluster. We compared the legacy Intel Haswell-EP architecture (E5-2680 v3), characterized by its monolithic design, against the modern AMD Rome microarchitecture (EPYC 7742), which utilizes a high-bandwidth chiplet design. This selection allows for an analysis of how memory-intensive Voronoi tessellation scales across differing cache hierarchies and memory subsystems.
 
-| Threads | Wall Time (s) |
-| :--- | :--- | 
-| 1 | 47.188177105 |
-| 2 | 4.657180860 | 
-| 4 | 5.781218087 | 
-| 8 | 6.841852061 | 
-| 16 | 4.594425071 |
-| 32 | 4.511585210 |
+## Test 1
 
-And for the dgxa100(AMD EPYC 7742) node:
+Running the [benchmaker](benchmarkCluster.sh) on the Haswell cluster  we get the results:
 
-Threads | Wall_Time (s) |
-| :--- | :--- | 
-| 1 | 55.806924714 |
-| 2 | 4.964595428 |
-| 4 | 4.431720859 |
-| 8 | 4.508872473 |
-| 16 | 4.441886920 |
-| 32 | 4.462919071 |
 
-![SpeedUpIntel Picture](Data/SpeedUpIntel.png)
-![SpeedUpAmd Picture](Data/SpeedUpAmd.png)
-## Conclusions
+| Threads | Intel (s) | Amd (s) |
+| :--- | :--- | :--- |
+| 1 | 47.188177105 | 55.806924714 |
+| 2 | 4.657180860 |  4.964595428 |
+| 4 | 5.781218087 |  4.431720859 |
+| 8 | 6.841852061 |  4.508872473 |
+| 16 | 4.594425071 | 4.441886920 |
+| 32 | 4.511585210 | 4.462919071 |
+
+![SpeedUpIntel Picture](Data/SpeedUpIntelTest1.png)
+![SpeedUpAmd Picture](Data/SpeedUpAmdTest1.png)
+## Conclusions Test 1
 
 ### 1. Anomalous Initial Scaling and Parallel Efficiency:  
 The transition from 1 to 2 threads yields a speedup factor of approximately $10.13\times$ on the Intel node and $11.24\times$ on the AMD node. In a standard computational model, speedup $S$ is bounded by the number of processors $p$ ($S \le p$); however, these results suggest a cache-resident transition. The single-threaded execution likely suffers from severe cache thrashing or memory latency penalties that are mitigated when the workload is partitioned, allowing the working set to fit within the aggregate L2/L3 cache capacity of multiple cores.
 ### 2. Scalability Plateaus and Synchronization Overhead  
-Beyond $n=2$ threads, both architectures encounter a performance plateau. On the Intel node, a regressive trend is observed at $n=8$ ($6.84s$), likely attributable to NUMA (Non-Uniform Memory Access) effects or bus contention. The AMD EPYC 7742 (Rome) architecture demonstrates superior stability, maintaining a consistent wall time of $\approx 4.4s$. This suggests that the application becomes I/O bound or limited by Amhdahl's Law, where the sequential portion of the algorithm dominates the remaining execution time.
-e achieves the lowest absolute wall time at $n=32$ ($4.51s$), the AMD node exhibits a more robust scaling curve with lower variance. The AMD node’s ability to maintain performance across high thread counts is indicative of its high-bandwidth Infinity Fabric and larger L3 cache hierarchy, which effectively handles the synchronization overhead that causes the localized performance degradation seen in the Intel results at mid-range threading.
+Beyond $n=2$ threads, both architectures encounter a performance plateau. On the Intel node, a regressive trend is observed at $n=8$ ($6.84s$), likely attributable to NUMA effects or bus contention. The AMD architecture demonstrates superior stability, maintaining a consistent wall time of $\approx 4.4s$. This suggests that the application becomes I/O bound or limited by Amhdahl's Law, where the sequential portion of the algorithm dominates the remaining execution time.
+e achieves the lowest absolute wall time at $n=32$ ($4.51s$), the AMD node exhibits a more robust scaling curve with lower variance. The AMD node's ability to maintain performance across high thread counts is indicative of its high-bandwidth Infinity Fabric and larger L3 cache hierarchy, which effectively handles the synchronization overhead that causes the localized performance degradation seen in the Intel results at mid-range threading.
+
+## Test 2:
+
+| Threads | Intel (s) | Amd (s) |
+| :--- | :--- | :--- |
+| 1 | 588.397543486 | 523.156452409 |
+| 2 | 306.576713053 | 269.135786464 |
+| 4 | 161.796424869 | 144.527605480 |
+| 8 | 101.207620188 | 85.532290445 |
+| 16 | 67.152671499 | 54.153843128 |
+| 32 | 58.351383793 | 44.326593311 |
+
+![SpeedUpIntel Picture](Data/SpeedUpIntelTest2.png)
+![SpeedUpAmd Picture](Data/SpeedUpAmdTest2.png)
+## Conclusions Test 2
+
+### 1. Architectural IPC Advantage and Baseline Latency
+The AMD architecture demonstrates a consistent ~12% performance lead over the Intel Xeon E5-2680 v3 in single-threaded execution. This delta is representative of the generational leap in IPC and branch prediction efficiency between the Haswell and Rome microarchitectures. For the Hard Test workload, the baseline computational latency is significantly lower on the AMD node, providing a superior foundation for parallel scaling.
+### 2. Parallel Efficiency and Scaling Deceleration
+Both architectures exhibit a classic sub-linear scaling curve. While the transition from 1 to 4 threads shows strong efficiency ($S \approx 3.6x$), a significant scaling "knee" appears beyond $n=8$ threads.
+* Intel Node: Scaling efficiency drops to 31% when moving from 1 to 32 threads ($S = 10.08x$). This degradation is characteristic of Resource Contention, specifically within the Execution Units shared by logical threads on the 24-core Intel node.
+* AMD Node: Maintains a slightly higher efficiency at $n=32$ ($S = 11.80x$). The superior performance is attributed to the larger L3 cache hierarchy (256MB on AMD vs 60MB on Intel), which mitigates the memory-access bottlenecks associated with high-concurrency geometric computations.
+
+
+## Both tests conclusions
+### 1. Cache-Resident Transitions  
+At $n=1$, the Easy problem size likely exceeds the L1/L2 cache of a single core, leading to massive memory latency. When we move to $n \ge 2$, the workload is partitioned such that the active data fits entirely within the aggregate L3 cache of the allocated cores. Once the problem becomes "cache-resident," additional threads provide zero marginal gain, which is why the time flatlines at $\approx 4.5s$ for both architectures.
+### 2. The "Hard" Test: Pure Compute Scaling
+In the Hard test, the workload is large enough that it cannot be "hidden" in the cache, forcing a reliance on raw clock speed and memory bandwidth. The AMD EPYC architecture consistently outperforms the Intel Haswell by 11-24%. This is the result of the 5-year generational gap in IPC  and the faster DDR4-3200 memory bus on the AMD nodes.
+
+![Log Scale Amd Picture](Data/LogScaleAmdVsIntelEasyVsHard.png)
 
 # Installation
 
