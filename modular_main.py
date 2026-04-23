@@ -126,8 +126,8 @@ def get_results(struct, vnn, n_workers, element, target_min_len, search_cutoff, 
     
     cache_file = get_cache_path(element, target_min_len, search_cutoff)
     if cached:
-        
         if os.path.exists(cache_file):
+            logger.info("Using element cache")
             data = np.load(cache_file, allow_pickle=True)
             return list(data['centers']), list(data['weights']), list(data['neighbors'])
     
@@ -180,20 +180,25 @@ def main(target_min_len, search_cutoff, element, max_workers=None)->None:
     
     # all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, max_workers)
     all_centers, all_weights, all_neighbor_coords = get_results(struct, vnn, max_workers, element, target_min_len, search_cutoff, True)
-   
+      
     centers_np = np.array(all_centers)
     
-    log_memory_usage("Memory usage total", len(struct))
-    logger.info("Started cpp module")
-    results = PythonHarmonicModule.analyze_atoms(centers_np, all_weights, all_neighbor_coords, len(struct))
+    actual_num_atoms = len(centers_np)
     
-    logger.info("Cpp module ended") 
+    log_memory_usage("Memory usage total", actual_num_atoms)
+    logger.info(f"Started cpp module with {actual_num_atoms} atoms")
+    
+    results = PythonHarmonicModule.analyze_atoms(centers_np, all_weights, all_neighbor_coords, actual_num_atoms)
+    
+    logger.info("Cpp module ended. Starting dump")
                 
             
     with open("cpp_local_order.info", "w") as file:
         file.write(f"Order Parameter Types: {types_to_check}\n")
         for i, data in enumerate(results):
             file.write(f"Site {i}: {data}\n")
+            
+    logger.info("Dump ended")
 
             
 
