@@ -8,19 +8,17 @@ sys.path.append(build_path)
 
 import PythonHarmonicModule # type: ignore
 
-
 import os
 import sys
 import math
 import json
+import psutil
 import logging
 import numpy as np
 from functools import partial
 from dotenv import load_dotenv
 from mp_api.client import MPRester
-from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.local_env import LocalStructOrderParams
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.core import Structure
 from concurrent.futures import ProcessPoolExecutor
@@ -53,6 +51,19 @@ def custom_logger():
     
     return logger
 
+def get_cache_path(element, target_min_len, search_cutoff):
+    if not os.path.exists("pre_process_cache"):
+        os.makedirs("pre_process_cache")
+        
+    return f"pre_process_cache/cache_{element}_{target_min_len}_{search_cutoff}.npz"
+
+def log_memory_usage(stage_name, num_atoms):
+    process = psutil.Process(os.getpid())
+    mem_mb = process.memory_info().rss / (1024 ** 2)
+    logger = logging.getLogger("ClusterLogger")
+    logger.info(f"MEM_CHECK | Stage: {stage_name} | Atoms: {num_atoms} | RAM: {mem_mb:.2f} MB")
+    return mem_mb
+
 def get_structure(element, folder="data_cache")->Structure | None:
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -63,6 +74,7 @@ def get_structure(element, folder="data_cache")->Structure | None:
         with open(file_path, "r") as f:
             return Structure.from_dict(json.load(f))
 
+    logger.info("Files not found in data cache, downloading...")
     load_dotenv()
     api_key = os.getenv('MAT_PROJ_KEY')
 
@@ -92,6 +104,7 @@ def process_chunk(indices, struct, vnn):
     return chunk_results
 
 def pre_process_paralel(struct, vnn, n_workers=None):
+    
     num_sites = len(struct)
     indices = list(range(num_sites))
     
@@ -108,7 +121,27 @@ def pre_process_paralel(struct, vnn, n_workers=None):
     all_centers, all_weights, all_neighbor_coords = zip(*all_results)
     
     return list(all_centers), list(all_weights), list(all_neighbor_coords)
+
+def get_results(struct, vnn, n_workers, element, target_min_len, search_cutoff, cached=False):
     
+    cache_file = get_cache_path(element, target_min_len, search_cutoff)
+    if cached:
+        
+        if os.path.exists(cache_file):
+            data = np.load(cache_file, allow_pickle=True)
+            return list(data['centers']), list(data['weights']), list(data['neighbors'])
+    
+    all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, n_workers)
+    
+    np.savez_compressed(
+        cache_file, 
+        centers=np.array(all_centers), 
+        weights=np.array(all_weights, dtype=object), 
+        neighbors=np.array(all_neighbor_coords, dtype=object)
+    )
+    
+    return all_centers, all_weights, all_neighbor_coords
+
 @profile  # type: ignore
 def main(target_min_len, search_cutoff, element, max_workers=None)->None:
     logger = custom_logger()
@@ -144,12 +177,14 @@ def main(target_min_len, search_cutoff, element, max_workers=None)->None:
     types_to_check = ["tet", "oct", "bcc", "sq_pyr"]
     vnn = VoronoiNN(tol=0.1, allow_pathological=True, cutoff=search_cutoff)
        
-    all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, max_workers)
+    
+    # all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, max_workers)
+    all_centers, all_weights, all_neighbor_coords = get_results(struct, vnn, max_workers, element, target_min_len, search_cutoff, True)
    
     centers_np = np.array(all_centers)
     
+    log_memory_usage("Memory usage total", len(struct))
     logger.info("Started cpp module")
-    print("Len struct = ", len(struct))
     results = PythonHarmonicModule.analyze_atoms(centers_np, all_weights, all_neighbor_coords, len(struct))
     
     logger.info("Cpp module ended") 

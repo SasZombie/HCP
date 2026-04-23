@@ -9,3 +9,4 @@ CppBindings/build-release/*
 data_cache/*
 CppBindings/data_cache/*
 sensor_profile_data
+pre_process_cache
