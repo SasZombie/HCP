@@ -70,3 +70,4 @@ uncertainties==3.2.3
 urllib3==2.6.3
 viztracer==1.1.1
 wcwidth==0.6.0
+psutil==7.2.2

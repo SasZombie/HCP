@@ -4,4 +4,4 @@ set -xeu
 rm -f *.log *.out
 rm -rf vtune_results*
 
-sbatch benchmarkCluster.sh
+sbatch benchmarkCluster.sh 0
