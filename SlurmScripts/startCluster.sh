@@ -1,11 +1,25 @@
 #!/bin/bash
 
-SCRIPT_DIR="$SLURM_SUBMIT_DIR"
+# Get the absolute path of the SlurmScripts folder
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
-TARGET_SCRIPT=$1
-CURRENT_VAL=$2
+set -xeu
 
-if [ "$CURRENT_VAL" -lt 2 ]; then
-    NEXT_VAL=$((CURRENT_VAL + 1))
-    sbatch "${SCRIPT_DIR}/${TARGET_SCRIPT}" "$NEXT_VAL"
+# Strip any leading path from the argument (e.g., ./SlurmScripts/script.sh becomes script.sh)
+TARGET_NAME=$(basename "$1")
+MULTIPLE=false
+
+for arg in "$@"; do
+  [[ "$arg" == "--multiple" ]] && MULTIPLE=true
+done
+
+# Cleanup specifically in the SlurmScripts folder
+rm -f "${SCRIPT_DIR}"/*.log "${SCRIPT_DIR}"/*.out || true
+rm -rf "${SCRIPT_DIR}"/vtune_results* || true
+
+if [ "$MULTIPLE" = true ]; then
+    # Use the absolute SCRIPT_DIR to ensure sbatch finds the file
+    sbatch "${SCRIPT_DIR}/${TARGET_NAME}" 0
+else
+    sbatch "${SCRIPT_DIR}/${TARGET_NAME}" 2
 fi
