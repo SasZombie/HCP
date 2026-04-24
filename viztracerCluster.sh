@@ -38,7 +38,6 @@ do
         ../imagineHPC.sif \
         ./venv/bin/viztracer \
         --include_files modular_main.py \
-        --patch_multiprocessing \
         --min_duration 0.01ms \
         -o $RESULTS_DIR \
         modular_main.py $TEST_TYPE $T
