@@ -173,7 +173,7 @@ std::array<double, TemplateSize> analyzeAtoms(const Eigen::Vector3d &center, con
     std::vector<size_t> indices(numAtoms);
     std::iota(indices.begin(), indices.end(), 0);
 
-    constexpr size_t maxAtomsNeeded = 8;
+    constexpr size_t maxAtomsNeeded = 100;
     size_t k = std::min(numAtoms, maxAtomsNeeded);
 
     std::partial_sort(indices.begin(), indices.begin() + k, indices.end(),

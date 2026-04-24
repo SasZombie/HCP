@@ -180,7 +180,7 @@ def main(target_min_len, search_cutoff, element, max_workers=None)->None:
     
     # all_centers, all_weights, all_neighbor_coords = pre_process_paralel(struct, vnn, max_workers)
     all_centers, all_weights, all_neighbor_coords = get_results(struct, vnn, max_workers, element, target_min_len, search_cutoff, True)
-      
+    
     centers_np = np.array(all_centers)
     
     actual_num_atoms = len(centers_np)
