@@ -40,7 +40,7 @@ do
         --env OMP_NUM_THREADS=$T \
         ../imagineHPC.sif \
         ./venv/bin/viztracer \
-        --include_files modular_main.py \
+        --max_stack_depth 3 \
         --min_duration 0.01ms \
         -o $RESULTS_DIR \
         modular_main.py $TEST_TYPE $T
