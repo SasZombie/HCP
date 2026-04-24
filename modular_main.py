@@ -195,8 +195,9 @@ def main(target_min_len, search_cutoff, element, max_workers=None)->None:
             
     with open("cpp_local_order.info", "w") as file:
         file.write(f"Order Parameter Types: {types_to_check}\n")
-        for i, data in enumerate(results):
-            file.write(f"Site {i}: {data}\n")
+        if False:
+            for i, data in enumerate(results):
+                file.write(f"Site {i}: {data}\n")
             
     logger.info("Dump ended")
 
