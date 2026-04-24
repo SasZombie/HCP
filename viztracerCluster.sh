@@ -7,11 +7,11 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=32G               
 #SBATCH --output=bench_%j.out   
-#SBATCH --time=00:10:00         
+#SBATCH --time=00:04:00         
 
 ARG=$1
 
-THREADS=(1 1 2 4 8 16 32)
+THREADS=(1 1 1)
 LOG_FILE="threadResults_${ARG}.log"
 TEST_TYPE="1"
 
@@ -27,7 +27,7 @@ do
     
     START=$(date +%s.%N)
     
-    RESULTS_DIR="vtune_results_T${T}"
+    RESULTS_DIR="viztracer_${T}.json"
 
     apptainer exec \
         --bind .:/app \
@@ -40,7 +40,7 @@ do
         --include_files modular_main.py \
         --patch_multiprocessing \
         --min_duration 0.01ms \
-        -o result.json \
+        -o $RESULTS_DIR \
         modular_main.py $TEST_TYPE $T
     
     END=$(date +%s.%N)
