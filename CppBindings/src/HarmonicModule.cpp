@@ -107,15 +107,13 @@ static constexpr AtomTemplate LOOKUP[] = {
     {sqPyrTemplate, 15},
     {cn12Template, 36},
     {sglBdTemplate, 6},
-    {sqFaceCapTrigPrisTemplate, 21}
-};
-
+    {sqFaceCapTrigPrisTemplate, 21}};
 
 static_assert(TemplateSize == static_cast<size_t>(AtomShapeType::COUNT));
 static_assert(TemplateSize == sizeof(LOOKUP) / sizeof(AtomTemplate));
 
 // Kabsch and Hungarian Algorithms
-double alignScore(const Eigen::Ref<const Eigen::MatrixXd>& elems, const AtomTemplate &temp) noexcept
+double alignScore(const Eigen::Ref<const Eigen::MatrixXd> &elems, const AtomTemplate &temp) noexcept
 {
     const size_t n = temp.size / 3;
     Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor>, Eigen::Unaligned>
@@ -173,7 +171,18 @@ std::array<double, TemplateSize> analyzeAtoms(const Eigen::Vector3d &center, con
     std::vector<size_t> indices(numAtoms);
     std::iota(indices.begin(), indices.end(), 0);
 
-    constexpr size_t maxAtomsNeeded = 100;
+    static constexpr size_t maxAtomsNeeded = 100;
+    // static constexpr size_t maxAtomsNeeded = []
+    // {
+    //     size_t max_n = 0;
+    //     for (const auto &t : LOOKUP)
+    //     {
+    //         if ((t.size / 3) > max_n)
+    //             max_n = t.size / 3;
+    //     }
+    //     return max_n;
+    // }();
+
     size_t k = std::min(numAtoms, maxAtomsNeeded);
 
     std::partial_sort(indices.begin(), indices.begin() + k, indices.end(),
@@ -181,7 +190,7 @@ std::array<double, TemplateSize> analyzeAtoms(const Eigen::Vector3d &center, con
                       { return weights[i] > weights[j]; });
 
     std::array<double, TemplateSize> result;
-    Eigen::Matrix<double, 12, 3, Eigen::RowMajor> vecs;
+    Eigen::Matrix<double, maxAtomsNeeded, 3, Eigen::RowMajor> vecs;
 
     for (int i = 0; i < static_cast<int>(AtomShapeType::COUNT); ++i)
     {

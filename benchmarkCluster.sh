@@ -26,8 +26,6 @@ do
     export SLURM_CPUS_PER_TASK=$T
     
     START=$(date +%s.%N)
-    
-    RESULTS_DIR="vtune_results_T${T}"
 
     apptainer exec \
         --bind .:/app \
