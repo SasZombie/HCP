@@ -1,10 +1,11 @@
 #!/bin/bash
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+
+SCRIPT_DIR="$SLURM_SUBMIT_DIR"
 
 TARGET_SCRIPT=$1
 CURRENT_VAL=$2
 
 if [ "$CURRENT_VAL" -lt 2 ]; then
     NEXT_VAL=$((CURRENT_VAL + 1))
-    sbatch "$TARGET_SCRIPT" "$NEXT_VAL"
+    sbatch "${SCRIPT_DIR}/${TARGET_SCRIPT}" "$NEXT_VAL"
 fi

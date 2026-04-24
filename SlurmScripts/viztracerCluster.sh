@@ -1,5 +1,4 @@
 #!/bin/bash
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
 #SBATCH --partition=haswell
 #SBATCH --job-name=scaling_test
@@ -10,15 +9,19 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 #SBATCH --output=bench_%j.out   
 #SBATCH --time=00:04:00         
 
+SCRIPT_DIR="$SLURM_SUBMIT_DIR"
+LVL2_DIR=$(dirname "$SCRIPT_DIR")
+LVL1_DIR=$(dirname "$LVL2_DIR")
+
 ARG=$1
 
 THREADS=(1 1 1)
-LOG_FILE="threadResults_${ARG}.log"
+LOG_FILE="${LVL2_DIR}/threadResults_${ARG}.log"
 TEST_TYPE="1"
 
-echo "--- Benchmark Start: $(date) ---" > $LOG_FILE
-echo "Threads | Wall_Time (s) |" >> $LOG_FILE
-echo "-------------------------" >> $LOG_FILE
+echo "--- Benchmark Start: $(date) ---" > "$LOG_FILE"
+echo "Threads | Wall_Time (s) |" >> "$LOG_FILE"
+echo "-------------------------" >> "$LOG_FILE"
 
 TEST_NR=1
 
@@ -34,26 +37,26 @@ do
     ((TEST_NR++))
 
     apptainer exec \
-        --bind .:/app \
+        --bind "${LVL2_DIR}":/app \
         --pwd /app \
         --cleanenv \
         --env LD_LIBRARY_PATH="/usr/local/lib:/usr/lib/x86_64-linux-gnu" \
         --env OMP_NUM_THREADS=$T \
-        ../imagineHPC.sif \
-        ./venv/bin/viztracer \
+        "${LVL1_DIR}/imagineHPC.sif" \
+        /app/venv/bin/viztracer \
         --max_stack_depth 3 \
         --min_duration 0.01ms \
-        -o $RESULTS_DIR \
+        -o "$RESULTS_DIR" \
         modular_main.py $TEST_TYPE $T
     
     END=$(date +%s.%N)
     DIFF=$(echo "$END - $START" | bc)
     
-    echo "$T | $DIFF" >> $LOG_FILE
+    echo "$T | $DIFF" >> "$LOG_FILE"
     
     echo "Completed $T threads."
 done
 
-echo "--- Benchmark Ended: $(date) ---" >> $LOG_FILE
+echo "--- Benchmark Ended: $(date) ---" >> "$LOG_FILE"
 
-./multipleBenches.sh "$ARG"
+"${SCRIPT_DIR}/multipleBenches.sh" "$ARG"

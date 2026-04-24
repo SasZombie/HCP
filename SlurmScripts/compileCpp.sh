@@ -1,5 +1,4 @@
 #!/bin/bash
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
 #SBATCH --partition=haswell
 #SBATCH --job-name=compilation
@@ -10,16 +9,19 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 #SBATCH --output=compile_%j.out   
 #SBATCH --time=00:15:00   
 
+SCRIPT_DIR="$SLURM_SUBMIT_DIR"
+
+LVL2_DIR=$(dirname "$SCRIPT_DIR")
+LVL1_DIR=$(dirname "$LVL2_DIR")
+
 NPROCS=${SLURM_CPUS_PER_TASK:-1}
 
-echo "Starting compilation using $NPROCS cores..."
-
 apptainer exec \
-    --bind .:/app \
+    --bind "${LVL2_DIR}":/app \
     --pwd /app \
     --cleanenv \
-    ../../imagineHPC.sif \
-    /bin/bash -c "cd ../CppBindings && \
+    "${LVL1_DIR}/imagineHPC.sif" \
+    /bin/bash -c "cd /app/CppBindings && \
                   cmake --preset release && \
                   cmake --build --preset release -j $NPROCS"
 
