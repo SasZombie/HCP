@@ -19,6 +19,8 @@ echo "--- Benchmark Start: $(date) ---" > $LOG_FILE
 echo "Threads | Wall_Time (s) |" >> $LOG_FILE
 echo "-------------------------" >> $LOG_FILE
 
+TEST_NR=1
+
 for T in "${THREADS[@]}"
 do
     echo "Running with $T threads..."
@@ -27,7 +29,8 @@ do
     
     START=$(date +%s.%N)
     
-    RESULTS_DIR="viztracer_${T}.json"
+    RESULTS_DIR="viztracer_${TEST_NR}.json"
+    ((TEST_NR++))
 
     apptainer exec \
         --bind .:/app \
