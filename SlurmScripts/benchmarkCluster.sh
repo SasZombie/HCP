@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# NOTE: Slurm directives (#SBATCH) MUST come before any executable code 
+# like SCRIPT_DIR=... otherwise Slurm might ignore them.
+
 #SBATCH --partition=haswell
 #SBATCH --job-name=scaling_test
 #SBATCH --nodes=1
@@ -9,43 +12,43 @@
 #SBATCH --output=bench_%j.out   
 #SBATCH --time=00:10:00         
 
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+
+LVL2_DIR=$(dirname "$SCRIPT_DIR")
+LVL1_DIR=$(dirname "$LVL2_DIR")
+
 ME="benchmarkCluster.sh"
 ARG=${1:-0}
 
-
 THREADS=(1 1 2 4 8 16 32)
-LOG_FILE="threadResults_${ARG}.log"
+# Saves log in the root folder
+LOG_FILE="${PARENT_DIR}/threadResults_${ARG}.log"
 TEST_TYPE="1"
 
-echo "--- Benchmark Start: $(date) ---" > $LOG_FILE
-echo "Threads | Wall_Time (s) |" >> $LOG_FILE
-echo "-------------------------" >> $LOG_FILE
+echo "--- Benchmark Start: $(date) ---" > "$LOG_FILE"
+echo "Threads | Wall_Time (s) |" >> "$LOG_FILE"
+echo "-------------------------" >> "$LOG_FILE"
 
 for T in "${THREADS[@]}"
 do
     echo "Running with $T threads..."
-    
     export SLURM_CPUS_PER_TASK=$T
-    
     START=$(date +%s.%N)
-
+    
     apptainer exec \
-        --bind .:/app \
+        --bind "${LVL2_DIR}":/app \
         --pwd /app \
         --cleanenv \
         --env LD_LIBRARY_PATH="/usr/local/lib:/usr/lib/x86_64-linux-gnu" \
         --env OMP_NUM_THREADS=$T \
-        ../imagineHPC.sif \
-        ./venv/bin/python3 modular_main.py $TEST_TYPE $T
+        "${LVL1_DIR}/imagineHPC.sif" \
+        /app/venv/bin/python3 ./modular_main.py $TEST_TYPE $T
     
     END=$(date +%s.%N)
     DIFF=$(echo "$END - $START" | bc)
-    
-    echo "$T | $DIFF" >> $LOG_FILE
-    
-    echo "Completed $T threads."
+    echo "$T | $DIFF" >> "$LOG_FILE"
 done
 
-echo "--- Benchmark Ended: $(date) ---" >> $LOG_FILE
+echo "--- Benchmark Ended: $(date) ---" >> "$LOG_FILE"
 
-./multipleBenches.sh "$ME" "$ARG"
+"${SCRIPT_DIR}/multipleBenches.sh" "$ME" "$ARG"

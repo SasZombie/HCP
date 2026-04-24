@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+
 set -xeu
 
 # Usage: ./start.sh benchmarkCluster.sh --multiple

@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
 #SBATCH --partition=haswell
 #SBATCH --job-name=compilation
@@ -17,8 +18,8 @@ apptainer exec \
     --bind .:/app \
     --pwd /app \
     --cleanenv \
-    ../imagineHPC.sif \
-    /bin/bash -c "cd CppBindings && \
+    ../../imagineHPC.sif \
+    /bin/bash -c "cd ../CppBindings && \
                   cmake --preset release && \
                   cmake --build --preset release -j $NPROCS"
 
