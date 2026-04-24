@@ -18,16 +18,6 @@ THREADS=(1 2 4 8 16 32)
 SCHEDULES=("static" "dynamic" "guided")
 CHUNKS=(1 16 64)
 
-#Dummy to skip python initial overhead
-apptainer exec \
-            --bind .:/app \
-            --pwd /app \
-            --cleanenv \
-            --env LD_LIBRARY_PATH="/usr/local/lib:/usr/lib/x86_64-linux-gnu" \
-            --env OMP_NUM_THREADS=32 \
-            --env OMP_SCHEDULE="static,1" \
-            ../imagineHPC.sif \
-            ./venv/bin/python3 modular_main.py 1 16 
 
 echo "--- Benchmark Start: $(date) ---" > $LOG_FILE
 echo "Threads | Wall_Time (s) |" >> $LOG_FILE
