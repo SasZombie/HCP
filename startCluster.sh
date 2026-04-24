@@ -1,7 +1,19 @@
 #!/bin/bash
 set -xeu
 
-rm -f *.log *.out
-rm -rf vtune_results*
+# Usage: ./start.sh benchmarkCluster.sh --multiple
+SCRIPT_TO_RUN=$1
+MULTIPLE=false
 
-sbatch benchmarkCluster.sh 0
+for arg in "$@"; do
+  [[ "$arg" == "--multiple" ]] && MULTIPLE=true
+done
+
+rm -f *.log *.out || true
+rm -rf vtune_results* || true
+
+if [ "$MULTIPLE" = true ]; then
+    sbatch "$SCRIPT_TO_RUN" 0
+else
+    sbatch "$SCRIPT_TO_RUN" 2
+fi

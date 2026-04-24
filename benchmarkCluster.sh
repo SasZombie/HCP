@@ -9,7 +9,9 @@
 #SBATCH --output=bench_%j.out   
 #SBATCH --time=00:10:00         
 
-ARG=$1
+ME="benchmarkCluster.sh"
+ARG=${1:-0}
+
 
 THREADS=(1 1 2 4 8 16 32)
 LOG_FILE="threadResults_${ARG}.log"
@@ -46,4 +48,4 @@ done
 
 echo "--- Benchmark Ended: $(date) ---" >> $LOG_FILE
 
-./multipleBenches.sh "$ARG"
+./multipleBenches.sh "$ME" "$ARG"

@@ -1,7 +1,8 @@
 #!/bin/bash
-ARG=$1
+TARGET_SCRIPT=$1
+CURRENT_VAL=$2
 
-if [ "$ARG" -lt 3 ]; then
-    NEXT_ARG=$((ARG + 1))
-    sbatch benchmarkCluster.sh "$NEXT_ARG"
+if [ "$CURRENT_VAL" -lt 2 ]; then
+    NEXT_VAL=$((CURRENT_VAL + 1))
+    sbatch "$TARGET_SCRIPT" "$NEXT_VAL"
 fi
