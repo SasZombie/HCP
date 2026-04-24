@@ -22,7 +22,7 @@ ARG=${1:-0}
 
 THREADS=(1 1 2 4 8 16 32)
 # Saves log in the root folder
-LOG_FILE="${PARENT_DIR}/threadResults_${ARG}.log"
+LOG_FILE="${LVL2_DIR}/threadResults_${ARG}.log"
 TEST_TYPE="1"
 
 echo "--- Benchmark Start: $(date) ---" > "$LOG_FILE"
