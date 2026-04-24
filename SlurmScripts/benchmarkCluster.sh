@@ -12,7 +12,7 @@
 #SBATCH --output=bench_%j.out   
 #SBATCH --time=00:10:00         
 
-SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+SCRIPT_DIR="$SLURM_SUBMIT_DIR"
 
 LVL2_DIR=$(dirname "$SCRIPT_DIR")
 LVL1_DIR=$(dirname "$LVL2_DIR")
