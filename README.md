@@ -218,6 +218,9 @@ The third week of analysis focused on C++ Binding performance utilizing a custom
 
 Preliminary results indicate a strong positive correlation between thread density and execution throughput. While thread count was the primary driver of performance, scheduling type and chunk size demonstrated a secondary, albeit measurable, impact.
 At the maximum concurrency of 32 threads, the optimal configuration was achieved using Guided scheduling with a Chunk size of 16, yielding an execution time of 0.980ms. In contrast, the least efficient 32-thread configuration (Dynamic, Chunk 1) resulted in a latency of 1.285ms, representing a 23.7% performance delta within the high-concurrency tier.
+
+![eficienta_chunk_1](Data/eficienta_chunk_1.png)
+
 # Installation
 
 Our Recomandation is using venv:
