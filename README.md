@@ -213,13 +213,24 @@ The third week of analysis focused on C++ Binding performance utilizing a custom
 | guided | 64 | 16 | 1.45129 |
 | guided | 64 | 32 | 1.19283 |
 
+### Chunk Size = 1
+![speedup_chunk_1](Data/speedup_chunk_1.png)
+![efficiency_chunk_1](Data/efficiency_chunk_1.png)
+
+### Chunk Size = 16
+![speedup_chunk_16](Data/speedup_chunk_16.png)
+![efficiency_chunk_16](Data/efficiency_chunk_16.png)
+
+### Chunk Size = 64
+![speedup_chunk_64](Data/speedup_chunk_64.png)
+![efficiency_chunk_64](Data/efficiency_chunk_64.png)
 
 ![CppKernelComp](Data/CppKernelComp.png)
 
 Preliminary results indicate a strong positive correlation between thread density and execution throughput. While thread count was the primary driver of performance, scheduling type and chunk size demonstrated a secondary, albeit measurable, impact.
 At the maximum concurrency of 32 threads, the optimal configuration was achieved using Guided scheduling with a Chunk size of 16, yielding an execution time of 0.980ms. In contrast, the least efficient 32-thread configuration (Dynamic, Chunk 1) resulted in a latency of 1.285ms, representing a 23.7% performance delta within the high-concurrency tier.
 
-![eficienta_chunk_1](Data/eficienta_chunk_1.png)
+
 
 # Installation
 
