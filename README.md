@@ -151,6 +151,73 @@ In the Hard test, the workload is large enough that it cannot be "hidden" in the
 
 ![Log Scale Amd Picture](Data/LogScaleAmdVsIntelEasyVsHard.png)
 
+## Week 3
+
+The third week of analysis focused on C++ Binding performance utilizing a custom compound with $6 \times 10^6$ parameters. The evaluation explored the scaling behavior across varying thread counts (1 to 32), chunk sizes (1, 16, 32), and OpenMP scheduling strategies (Dynamic, Static, and Guided). 
+
+| Type | ChunkSize | Threads | Time |  
+| :--- | :--- | :--- | :---|  
+| 0 | 0 | 0 | 9.38855 |  
+| static | 1 | 1 | 14.8407 |
+| static | 1 | 2 | 7.55614 |
+| static | 1 | 4 | 3.96014 |
+| static | 1 | 8 | 2.18202 |
+| static | 1 | 16 | 1.60231 |
+| static | 1 | 32 | 1.01206 |
+| static | 16 | 1 | 14.7254 |
+| static | 16 | 2 | 7.3913 |
+| static | 16 | 4 | 4.0239 |
+| static | 16 | 8 | 2.18116 |
+| static | 16 | 16 | 1.69198 |
+| static | 16 | 32 | 1.14925 |
+| static | 64 | 1 | 14.7523 |
+| static | 64 | 2 | 7.53523 |
+| static | 64 | 4 | 3.97007 |
+| static | 64 | 8 | 2.08072 |
+| static | 64 | 16 | 1.63659 |
+| static | 64 | 32 | 1.17323 |
+| dynamic | 1 | 1 | 14.8345 |
+| dynamic | 1 | 2 | 7.71467 |
+| dynamic | 1 | 4 | 4.16052 |
+| dynamic | 1 | 8 | 2.26142 |
+| dynamic | 1 | 16 | 1.57013 |
+| dynamic | 1 | 32 | 1.28565 |
+| dynamic | 16 | 1 | 14.7597 |
+| dynamic | 16 | 2 | 7.63448 |
+| dynamic | 16 | 4 | 3.94774 |
+| dynamic | 16 | 8 | 2.14317 |
+| dynamic | 16 | 16 |1.53853  |
+| dynamic | 16 | 32 |1.20758  |
+| dynamic | 64 | 1 | 14.7312 |
+| dynamic | 64 | 2 | 7.57152 |
+| dynamic | 64 | 4 | 3.891 |
+| dynamic | 64 | 8 | 2.10814 |
+| dynamic | 64 | 16 |1.51857  |
+| dynamic | 64 | 32 |1.12501  |
+| guided | 1 | 1 | 14.7222 |
+| guided | 1 | 2 | 7.38062 |
+| guided | 1 | 4 | 3.87572 |
+| guided | 1 | 8 | 2.06846 |
+| guided | 1 | 16 | 1.60227 |
+| guided | 1 | 32 | 0.994523 |
+| guided | 16 | 1 | 14.7332 |
+| guided | 16 | 2 | 7.56928 |
+| guided | 16 | 4 | 3.94669 |
+| guided | 16 | 8 | 2.08977 |
+| guided | 16 | 16 | 1.39085 |
+| guided | 16 | 32 | 0.980087 |
+| guided | 64 | 1 | 14.7512 |
+| guided | 64 | 2 | 7.41044 |
+| guided | 64 | 4 | 3.88733 |
+| guided | 64 | 8 | 2.07546 |
+| guided | 64 | 16 | 1.45129 |
+| guided | 64 | 32 | 1.19283 |
+
+
+![CppKernelComp](Data/CppKernelComp.png)
+
+Preliminary results indicate a strong positive correlation between thread density and execution throughput. While thread count was the primary driver of performance, scheduling type and chunk size demonstrated a secondary, albeit measurable, impact.
+At the maximum concurrency of 32 threads, the optimal configuration was achieved using Guided scheduling with a Chunk size of 16, yielding an execution time of 0.980ms. In contrast, the least efficient 32-thread configuration (Dynamic, Chunk 1) resulted in a latency of 1.285ms, representing a 23.7% performance delta within the high-concurrency tier.
 # Installation
 
 Our Recomandation is using venv:
