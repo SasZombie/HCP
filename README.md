@@ -213,6 +213,13 @@ The third week of analysis focused on C++ Binding performance utilizing a custom
 | guided | 64 | 16 | 1.45129 |
 | guided | 64 | 32 | 1.19283 |
 
+Speedup:
+S[N] = T[1]/T[N]  
+Efficiency:
+E[N] = S[N]/p=T[1]/(N*T[N])  
+N - num threads  
+T[1] - sequential computation time  
+T[N] - parallel computation time
 ### Chunk Size = 1
 ![speedup_chunk_1](Data/speedup_chunk_1.png)
 ![efficiency_chunk_1](Data/efficiency_chunk_1.png)
