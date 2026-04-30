@@ -20,16 +20,31 @@ LOG_FILE="${LVL2_DIR}/ompClusterBenchmark.log"
 
 THREADS=(1 2 4 8 16 32)
 SCHEDULES=("static" "dynamic" "guided")
-CHUNKS=(1 16 64)
+BASE_CHUNKS=(1 16 64)
+
+NUM_FACTORS=(2 64 256 1024 4096 16384)
+
+
 
 echo "--- Benchmark Start: $(date) ---" > "$LOG_FILE"
 echo "Threads | Wall_Time (s) |" >> "$LOG_FILE"
 echo "-------------------------" >> "$LOG_FILE"
 
 for SCHED in "${SCHEDULES[@]}"; do
+    for T in "${THREADS[@]}"; do
+
+    CURRENT_CHUNKS=("${BASE_CHUNKS[@]}")
+
+    for N in "${NUM_FACTORS}"; do
+        NEW_CHUNK=$((6860000 / (T * N) ))
+        CURRENT_CHUNKS+=($NEW_CHUNK)
+    done
+
+
     for CHUNK in "${CHUNKS[@]}"; do
-        for T in "${THREADS[@]}"; do
     
+            if [ "$CHUNK" -le 0 ]; then CHUNK=1; fi 
+            
             echo "Testing: ${SCHED},${CHUNK} with $T threads" >> "$LOG_FILE"
             
             export OMP_NUM_THREADS=$T
