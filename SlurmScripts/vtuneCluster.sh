@@ -7,6 +7,12 @@
 #SBATCH --mem=32G
 #SBATCH --time=00:10:00
 
+
+SCRIPT_DIR="$SLURM_SUBMIT_DIR"
+
+LVL2_DIR=$(dirname "$SCRIPT_DIR")
+LVL1_DIR=$(dirname "$LVL2_DIR")
+
 RESULT_DIR="/app/vtune_hpc_result"
 
 apptainer exec \
