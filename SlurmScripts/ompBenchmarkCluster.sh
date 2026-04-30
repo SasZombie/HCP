@@ -41,7 +41,7 @@ for SCHED in "${SCHEDULES[@]}"; do
     done
 
 
-    for CHUNK in "${CHUNKS[@]}"; do
+    for CHUNK in "${CURRENT_CHUNKS[@]}"; do
     
             if [ "$CHUNK" -le 0 ]; then CHUNK=1; fi 
 
