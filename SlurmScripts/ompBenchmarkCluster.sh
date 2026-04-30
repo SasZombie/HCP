@@ -22,7 +22,7 @@ THREADS=(1 2 4 8 16 32)
 SCHEDULES=("static" "dynamic" "guided")
 BASE_CHUNKS=(1 16 64)
 
-NUM_FACTORS=(2 64 256 1024 4096 16384)
+NUM_FACTORS=(2 64 256 4096 16384 65536 262144)
 
 
 
@@ -35,7 +35,7 @@ for SCHED in "${SCHEDULES[@]}"; do
 
     CURRENT_CHUNKS=("${BASE_CHUNKS[@]}")
 
-    for N in "${NUM_FACTORS}"; do
+    for N in "${NUM_FACTORS[@]}"; do
         NEW_CHUNK=$((6860000 / (T * N) ))
         CURRENT_CHUNKS+=($NEW_CHUNK)
     done
@@ -44,7 +44,7 @@ for SCHED in "${SCHEDULES[@]}"; do
     for CHUNK in "${CHUNKS[@]}"; do
     
             if [ "$CHUNK" -le 0 ]; then CHUNK=1; fi 
-            
+
             echo "Testing: ${SCHED},${CHUNK} with $T threads" >> "$LOG_FILE"
             
             export OMP_NUM_THREADS=$T
