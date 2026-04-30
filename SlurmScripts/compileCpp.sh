@@ -22,7 +22,8 @@ apptainer exec \
     --cleanenv \
     "${LVL1_DIR}/imagineHPC.sif" \
     /bin/bash -c "cd /app/CppBindings && \
-                  cmake --preset release && \
-                  cmake --build --preset release -j $NPROCS"
+                source /opt/intel/oneapi/vtune/latest/env/vars.sh && \
+                cmake --preset release && \
+                cmake --build --preset release -j $NPROCS"
 
 echo "Compilation finished with exit code $?"
